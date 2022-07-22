@@ -96,6 +96,19 @@ namespace ExtractingSteelBeamData
 			// Get the first running TSD instance found
 			var tsdInstance = tsdRunningInstances.First();
 
+			if( !await tsdInstance.InitializationTask )
+			{
+				Console.WriteLine( "Could not initialize TSD instance" );
+				return;
+			}
+
+			var connected = tsdInstance.Connected;
+
+			// Get the active document from the running instance of TSD
+			var version = await tsdInstance.GetVersionStringAsync();
+
+			Console.WriteLine( version );
+
 			// Get the active document from the running instance of TSD
 			var document = await tsdInstance.GetDocumentAsync();
 
@@ -160,7 +173,7 @@ namespace ExtractingSteelBeamData
 			}
 
 			// Get the Guids of the solved loading
-			var solvedLoadingGuids = await analysis3DResults.GetSolvedLoadingAsync();
+			var solvedLoadingGuids = await analysis3DResults.GetSolvedLoadingIdsAsync();
 
 			if( !solvedLoadingGuids.Any() )
 			{
@@ -170,10 +183,10 @@ namespace ExtractingSteelBeamData
 			}
 
 			// Get all loadcases in the model. Pass null as the parameter to get all loadcases; alternatively a sequence of indices can be passed to get specific loadcases
-			var loadcases = await model.GetLoadcaseAsync( null );
+			var loadcases = await model.GetLoadcasesAsync( null );
 
 			// Get the solved loadcases by cross referencing with the sequence of solved guids obtained from the solver model
-			var solvedLoadcases = loadcases.Where( l => solvedLoadingGuids.Contains( l.Id ) );
+			var solvedLoadcases = loadcases.Where( l => solvedLoadingGuids.Contains( l.Id ) ).ToList();
 
 			if( !solvedLoadcases.Any() )
 			{
@@ -183,7 +196,7 @@ namespace ExtractingSteelBeamData
 			}
 
 			// Get all members in the model. Pass null as the parameter to get all members; alternatively a sequence of indices can be passed to get specific members
-			var members = await model.GetMemberAsync( null );
+			var members = await model.GetMembersAsync( null );
 
 			if( !members.Any() )
 			{
@@ -194,11 +207,8 @@ namespace ExtractingSteelBeamData
 
 			// Specify the loading value options, these will determine the type of data we are requesting. Please see the constructor documentation for additional options.
 			// We do this before looping through all the members to avoid re-instantiating the classes on every iteration
-			var momentValueOption = new LoadingValueOptions( LoadingValueType.Moment );
-			var deflectionValueOption = new LoadingValueOptions( LoadingValueType.Deflection );
-
-			// For this example we will only consider the major axis
-			var requestedLoadingDirection = LoadingDirection.Major;
+			var momentValueOption = new LoadingValueOptions( LoadingValueType.Moment, LoadingDirection.Major );
+			var deflectionValueOption = new LoadingValueOptions( LoadingValueType.Deflection, LoadingDirection.Major );
 
 			// Instantiate a new string builder, we will use this to help write our output .csv file
 			var stringBuilder = new StringBuilder();
@@ -221,10 +231,10 @@ namespace ExtractingSteelBeamData
 				// Define the total length as 0.0 initially
 				double totalLength = 0.0;
 
-				for( int i = 0; i < member.SpanCount; i++ )
+				foreach( var span in await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } ) )
 				{
 					// Cumulatively add in the length of each individual span within the member
-					totalLength += (await member.GetSpanAsync( i )).Length;
+					totalLength += span.Length.Value;
 				}
 
 				// Create the output data object and set some member properties
@@ -254,13 +264,13 @@ namespace ExtractingSteelBeamData
 					}
 
 					// Get the interest points at which the maximum deflection in the major axis occurs (1 point of interest per span)
-					var maximumDeflectionPointsOfInterest = await memberLoading.GetPointOfInterest( deflectionValueOption, requestedLoadingDirection, PointOfInterestType.Maximum );
+					var maximumDeflectionPointsOfInterest = await memberLoading.GetPointsOfInterest( deflectionValueOption, PointOfInterestType.Maximum );
 
 					// For each solved loadcase, loop through the points of interest
 					foreach( var maximumDeflectionPointOfInterest in maximumDeflectionPointsOfInterest )
 					{
 						// Get the loading values for deflection at the position and span defined by point of interest
-						var maximumDeflectionLoadingValues = await memberLoading.GetValueAsync( deflectionValueOption, requestedLoadingDirection, maximumDeflectionPointOfInterest.SpanIndex, maximumDeflectionPointOfInterest.Position );
+						var maximumDeflectionLoadingValues = await memberLoading.GetValueAsync( deflectionValueOption, maximumDeflectionPointOfInterest.SpanIndex, maximumDeflectionPointOfInterest.Position );
 
 						// Get the maximum of all loading values at this point of interest
 						double spanMaximumDeflection = maximumDeflectionLoadingValues.Max( lv => lv.Value );
@@ -290,7 +300,7 @@ namespace ExtractingSteelBeamData
 				}
 
 				// Get the interest points at which the maximum moment in the major axis occurs for the critical loadcase (1 point of interest per span)
-				var maximumMomentPointsOfInterest = await criticalMemberLoading.GetPointOfInterest( momentValueOption, requestedLoadingDirection, PointOfInterestType.Maximum );
+				var maximumMomentPointsOfInterest = await criticalMemberLoading.GetPointsOfInterest( momentValueOption, PointOfInterestType.Maximum );
 
 				// We will keep track of the maximum moment in order to determine which span has the greatest maximum moment
 				var maximumMoment = 0.0;
@@ -299,7 +309,7 @@ namespace ExtractingSteelBeamData
 				foreach( var maximumMomentPointOfInterest in maximumMomentPointsOfInterest )
 				{
 					// Get the loading values for moment at the position and span defined by point of interest
-					var maximumMomentLoadingValues = await criticalMemberLoading.GetValueAsync( momentValueOption, requestedLoadingDirection, maximumMomentPointOfInterest.SpanIndex, maximumMomentPointOfInterest.Position );
+					var maximumMomentLoadingValues = await criticalMemberLoading.GetValueAsync( momentValueOption, maximumMomentPointOfInterest.SpanIndex, maximumMomentPointOfInterest.Position );
 
 					// Get the maximum of all loading values at this point of interest
 					double loadcaseMaximumMoment = maximumMomentLoadingValues.Max( lv => Math.Abs( lv.Value ) );
@@ -335,7 +345,7 @@ namespace ExtractingSteelBeamData
 		/// </summary>
 		/// <param name="member">The member to check</param>
 		/// <returns>True if the member is a steel beam; false otherwise</returns>
-		private static bool IsSteelBeam( IMember member ) => member.Type == MemberType.Beam && member.MaterialType == MaterialType.Steel;
+		private static bool IsSteelBeam( IMember member ) => member.MemberType.Value == MemberType.Beam && member.MaterialType.Value == MaterialType.Steel;
 
 		#endregion
 	}
