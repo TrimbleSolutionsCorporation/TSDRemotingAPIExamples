@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClosedXML.Excel;
+using TSD.API.Remoting.Sections;
 using TSD.API.Remoting.Solver;
 
 namespace TsdApiRemotingSample
@@ -16,7 +17,7 @@ namespace TsdApiRemotingSample
 		/// <summary>
 		/// The TSD application object
 		/// </summary>
-		private readonly TSD.API.Remoting.Application _application;
+		private readonly TSD.API.Remoting.IApplication _application;
 
 		private const string Filter = "TSD Project file (*.tsmd)|*.tsmd";
 		private const string DefaultExt = ".tsmd";
@@ -28,7 +29,7 @@ namespace TsdApiRemotingSample
 
 		#endregion
 
-		public ApplicationPage( TSD.API.Remoting.Application application )
+		public ApplicationPage( TSD.API.Remoting.IApplication application )
 		{
 			_application = application;
 			InitializeComponent();
@@ -309,14 +310,14 @@ namespace TsdApiRemotingSample
 					if (results3D != null)
 					{
 						// Get ids of solved loading cases
-						var solvedLoading = (await results3D.GetSolvedLoadingAsync()).ToList();
+						var solvedLoading = (await results3D.GetSolvedLoadingIdsAsync()).ToList();
 
 						// And if there are any
 						if (solvedLoading.Any())
 						{
 							// Collect loading cases (loadcases and combinations) from model
-							var loadingCases = (await model.GetLoadcaseAsync(null)).Cast<TSD.API.Remoting.Loading.ILoadingCase>().ToList();
-							loadingCases.AddRange((await model.GetCombinationAsync(null)).Cast<TSD.API.Remoting.Loading.ILoadingCase>());
+							var loadingCases = (await model.GetLoadcasesAsync(null)).Cast<TSD.API.Remoting.Loading.ILoadingCase>().ToList();
+							loadingCases.AddRange((await model.GetCombinationsAsync(null)).Cast<TSD.API.Remoting.Loading.ILoadingCase>());
 
 							// Get id of first solved loading case
 							var loadingId = solvedLoading.First();
@@ -342,7 +343,7 @@ namespace TsdApiRemotingSample
 
 			async Task ExportSolverNodes(XLWorkbook wb)
 			{
-				var nodes = await solverModel.GetNodeAsync(null);
+				var nodes = await solverModel.GetNodesAsync(null);
 
 				var ws = wb.Worksheets.Add("Nodes");
 
@@ -365,12 +366,12 @@ namespace TsdApiRemotingSample
 					ws.Cell(row, 2).Value = node.Coordinates.X;
 					ws.Cell(row, 3).Value = node.Coordinates.Y;
 					ws.Cell(row, 4).Value = node.Coordinates.Z;
-					ws.Cell(row, 5).Value = node.DOF.HasFlag(DegreeOfFreedom.Fx) ? Fixed : Free;
-					ws.Cell(row, 6).Value = node.DOF.HasFlag(DegreeOfFreedom.Fy) ? Fixed : Free;
-					ws.Cell(row, 7).Value = node.DOF.HasFlag(DegreeOfFreedom.Fz) ? Fixed : Free;
-					ws.Cell(row, 8).Value = node.DOF.HasFlag(DegreeOfFreedom.Mx) ? Fixed : Free;
-					ws.Cell(row, 9).Value = node.DOF.HasFlag(DegreeOfFreedom.My) ? Fixed : Free;
-					ws.Cell(row, 10).Value = node.DOF.HasFlag(DegreeOfFreedom.Mz) ? Fixed : Free;
+					ws.Cell(row, 5).Value = node.Dof.HasFlag(DegreeOfFreedom.Fx) ? Fixed : Free;
+					ws.Cell(row, 6).Value = node.Dof.HasFlag(DegreeOfFreedom.Fy) ? Fixed : Free;
+					ws.Cell(row, 7).Value = node.Dof.HasFlag(DegreeOfFreedom.Fz) ? Fixed : Free;
+					ws.Cell(row, 8).Value = node.Dof.HasFlag(DegreeOfFreedom.Mx) ? Fixed : Free;
+					ws.Cell(row, 9).Value = node.Dof.HasFlag(DegreeOfFreedom.My) ? Fixed : Free;
+					ws.Cell(row, 10).Value = node.Dof.HasFlag(DegreeOfFreedom.Mz) ? Fixed : Free;
 
 					row++;
 				}
@@ -381,7 +382,7 @@ namespace TsdApiRemotingSample
 
 			async Task ExportElements1D(XLWorkbook wb)
 			{
-				var elements = await solverModel.GetElement1DAsync(null);
+				var elements = await solverModel.GetElements1DAsync(null);
 
 				var ws = wb.Worksheets.Add("Elements 1D");
 
@@ -403,13 +404,13 @@ namespace TsdApiRemotingSample
 				foreach (var element in elements)
 				{
 					ws.Cell(row, 1).Value = element.Index;
-					ws.Cell(row, 2).Value = element.GetNode(0);
-					ws.Cell(row, 3).Value = element.GetNode(1);
-					ws.Cell(row, 4).Value = element.ExtendedSection.Name;
-					ws.Cell(row, 5).Value = element.ExtendedSection.MajorAxisSecondMomentOfArea;
-					ws.Cell(row, 6).Value = element.ExtendedSection.MinorAxisSecondMomentOfArea;
-					ws.Cell(row, 7).Value = element.ExtendedSection.TorsionConstant;
-					ws.Cell(row, 8).Value = element.ExtendedSection.CrossSectionalArea;
+					ws.Cell(row, 2).Value = element.GetNodeIndex(0);
+					ws.Cell(row, 3).Value = element.GetNodeIndex(1);
+					ws.Cell(row, 4).Value = ((IMemberSection) element.ElementSection).PhysicalSection.Value.LongName;
+					ws.Cell(row, 5).Value = ((IMemberSection) element.ElementSection)?.MajorAxisSecondMomentOfArea.Value;
+					ws.Cell(row, 6).Value = ((IMemberSection) element.ElementSection)?.MinorAxisSecondMomentOfArea.Value;
+					ws.Cell(row, 7).Value = ((IMemberSection) element.ElementSection)?.TorsionConstant.Value;
+					ws.Cell(row, 8).Value = ((IMemberSection) element.ElementSection)?.CrossSectionalArea.Value;
 					ws.Cell(row, 9).Value = element.Material.Name;
 					ws.Cell(row, 10).Value = element.Material.ShearModulus;
 					ws.Cell(row, 11).Value = element.Material.PoissonsRatio;
