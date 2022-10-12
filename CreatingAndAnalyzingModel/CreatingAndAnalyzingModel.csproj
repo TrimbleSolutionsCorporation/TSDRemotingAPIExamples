@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>CreatingAndAnalyzingModel</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="0.22.2" />
+    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="0.22.3" />
   </ItemGroup>
 
 </Project>
