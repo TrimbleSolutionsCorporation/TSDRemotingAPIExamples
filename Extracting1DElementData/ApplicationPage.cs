@@ -403,14 +403,16 @@ namespace TsdApiRemotingSample
 
 				foreach (var element in elements)
 				{
+					var section = element.ElementSection as ISolverElementSection;
+
 					ws.Cell(row, 1).Value = element.Index;
 					ws.Cell(row, 2).Value = element.GetNodeIndex(0);
 					ws.Cell(row, 3).Value = element.GetNodeIndex(1);
-					ws.Cell(row, 4).Value = ((IMemberSection) element.ElementSection).PhysicalSection.Value.LongName;
-					ws.Cell(row, 5).Value = ((IMemberSection) element.ElementSection)?.MajorAxisSecondMomentOfArea.Value;
-					ws.Cell(row, 6).Value = ((IMemberSection) element.ElementSection)?.MinorAxisSecondMomentOfArea.Value;
-					ws.Cell(row, 7).Value = ((IMemberSection) element.ElementSection)?.TorsionConstant.Value;
-					ws.Cell(row, 8).Value = ((IMemberSection) element.ElementSection)?.CrossSectionalArea.Value;
+					ws.Cell(row, 4).Value = (element.ElementSection as IMemberSection)?.PhysicalSection.Value.LongName;
+					ws.Cell(row, 5).Value = section?.MajorAxisSecondMomentOfArea.Value;
+					ws.Cell(row, 6).Value = section?.MinorAxisSecondMomentOfArea.Value;
+					ws.Cell(row, 7).Value = section?.TorsionConstant.Value;
+					ws.Cell(row, 8).Value = section?.CrossSectionalArea.Value;
 					ws.Cell(row, 9).Value = element.Material.Name;
 					ws.Cell(row, 10).Value = element.Material.ShearModulus;
 					ws.Cell(row, 11).Value = element.Material.PoissonsRatio;
