@@ -4,8 +4,11 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using TSD.API.Remoting.Common;
+using TSD.API.Remoting.Foundations;
+using TSD.API.Remoting.Foundations.Create;
 using TSD.API.Remoting.Geometry;
 using TSD.API.Remoting.Materials;
+using TSD.API.Remoting.Sections;
 using TSD.API.Remoting.Solver;
 using TSD.API.Remoting.Structure;
 using TSD.API.Remoting.Structure.Create;
@@ -38,6 +41,12 @@ namespace CreatingAndAnalyzingModel
 			await CreateSteelColumns( model, constructionPoints );
 
 			await CreateSlabItems( model, constructionPoints );
+
+			await CreateIsolatedFoundations( model );
+
+			await EditSteelBeamSections( model, constructionPoints );
+
+			await EditConcreteColumnSections( model, constructionPoints );
 		}
 
 		private static async Task CreateLevels( TSD.API.Remoting.Structure.IModel model )
@@ -503,6 +512,150 @@ namespace CreatingAndAnalyzingModel
 			}
 
 			Console.WriteLine( "Slab items created" );
+		}
+
+		private static async Task CreateIsolatedFoundations( TSD.API.Remoting.Structure.IModel model )
+		{
+			using var padBaseAttrSet = await model.CreatePadBaseAttributeSetAsync();
+
+			var padBaseEntities = new List<IEntity>();
+
+			var columns = (await model.GetMembersAsync()).Where( item => item.MemberType.Value == MemberType.Column ).ToList();
+
+			// Pad bases will be added beneath all concrete columns and walls
+			padBaseEntities.AddRange( columns.Where( c => c.MaterialType.Value == MaterialType.Concrete ) );
+
+			var structuralWalls = (await model.GetStructuralWallsAsync()).ToList();
+			padBaseEntities.AddRange( structuralWalls );
+
+			var createParams = padBaseEntities.Select( e => new IsolatedFoundationParams( e, padBaseAttrSet ) ).ToList();
+
+			var entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
+
+			var changeEntities = new List<IEntity>();
+
+			// Edit the depth of all pad bases, and the length of bases under walls
+			foreach( var padBase in entities )
+			{
+				padBase.IsolatedFoundationData.Value.Depth.Value = 500.0;
+
+				if( padBase.SupportedMemberType.Value == SupportedMemberType.Wall )
+				{
+					var wall = (await model.GetStructuralWallsAsync( Enumerable.Repeat( padBase.SupportedEntityInfo.Value.Index, 1 ) )).First();
+					var firstPanel = (await wall.GetSpanAsync( new[] { 0 } )).First();
+
+					// Set the length of the foundation to extend 1m beyond the bottom panel ends
+					padBase.IsolatedFoundationData.Value.LengthDir1.Value = firstPanel.BottomSegment.Value.Magnitude.Value + firstPanel.WallPanelData.Value.ExtensionLeftEnd.Value
+						+ firstPanel.WallPanelData.Value.ExtensionRightEnd.Value + 2000.0;
+				}
+
+				changeEntities.Add( padBase );
+			}
+
+			await model.CreateEntityCollector( changeEntities ).ApplyEntityAsync();
+
+			// A pile type must be defined in the model to allow creation of pile caps
+			var pileType1 = await model.CreatePileTypeAsync( new PileTypeParams( "PileType1" )
+			{
+				PileTypeInstallationType = PileTypeInstallationType.Driven,
+				PileTypeShape = PileTypeShape.Circular,
+				Dimension = 400.0,
+				Length = 12.0 * 1.0E3,
+				Embedment = 120.0,
+				AxialCompressiveResistance = 500.0 * 1.0E03,
+				AxialTensileResistance = 500.0 * 1.0E03,
+				AxialCompressiveResistanceEcStr = 500.0 * 1.0E03,
+				AxialTensileResistanceEcStr = 500.0 * 1.0E03,
+				Linearity = SpringStiffness.SpringNonLinear,
+				CompressionStiffnessVertical = 12000.0,
+				TensionStiffnessVertical = 15000.0,
+				CompressionLimitVertical = 1200.0 * 1.0E3,
+				TensionLimitVertical = 1500.0 * 1.0E3,
+				HorizontalRestraint = SpringStiffness.Fixed,
+				LoadTransferType = PileTypeLoadTransferType.EndBearing,
+				LateralResistance = 20.0 * 1.0E03,
+				LateralResistanceStr = 20.0 * 1.0E03,
+				VolumeAdjustmentPercentage = 1.0,
+			} );
+
+			using var pileCapAttrSet = await model.CreatePileCapAttributeSetAsync( new PileCapAttributeSetParams( pileType1 ) );
+
+			var pileCapEntities = new List<IEntity>();
+
+			// Pile caps will be added beneath all steel columns
+			pileCapEntities.AddRange( columns.Where( c => c.MaterialType.Value == MaterialType.Steel ) );
+
+			createParams = pileCapEntities.Select( e => new IsolatedFoundationParams( e, pileCapAttrSet ) ).ToList();
+
+			entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
+
+			// Edit the depth and number of piles for each pile cap
+			foreach( var pileCap in entities )
+			{
+				await pileCap.IsolatedFoundationData.Value.Depth.SetValueAndUpdateAsync( 800.0 );
+				await ((IPileCapData) pileCap.IsolatedFoundationData.Value).NumberOfPiles.SetValueAndUpdateAsync( 3 );
+			}
+
+			Console.WriteLine( "Isolated foundations created" );
+		}
+
+		private static async Task EditSteelBeamSections( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
+		{
+			var members = await model.GetMembersAsync();
+
+			// Get the list of valid sections from the database
+			var sectionFactory = model.SectionFactory;
+			var sections = await sectionFactory.GetNonParametricSections( TSD.API.Remoting.HeadCode.EC, Country.UK, SystemType.Metric, MaterialType.Steel, SectionGeometry.ISymmetric,
+				SectionType.UniversalBeam );
+
+			// Select the new section size from the list
+			var newSection = sections.First( s => s.LongName.Contains( "610x229x101" ) );
+
+			// Identify the start and end positions of the beams on gridline 1 above ground level
+			var startPointsIndices = constructionPoints[0][0].Where( c => c.Coordinates.Value.Z > 0.1 ).Select( p => p.Index ).ToList();
+			var endPointsIndices = constructionPoints[0][2].Where( c => c.Coordinates.Value.Z > 0.1 ).Select( p => p.Index ).ToList();
+
+			var steelBeams = members.Where( m => m.MemberType.Value is MemberType.Beam && m.MaterialType.Value is MaterialType.Steel );
+
+			var beamsToChange = steelBeams.Where( ShouldBeamChange );
+
+			foreach( var beam in beamsToChange )
+			{
+				foreach( var span in await beam.GetSpanAsync() )
+				{
+					await (span.ElementSection.Value as IMemberSection)?.PhysicalSection.SetValueAndUpdateAsync( newSection );
+				}
+			}
+
+			Console.WriteLine( "Steel beam sections edited" );
+
+			bool ShouldBeamChange( IMember member ) => startPointsIndices.Contains( member.MemberNodes.Value.First().Value.ConstructionPointIndex.Value )
+				&& endPointsIndices.Contains( member.MemberNodes.Value.Last().Value.ConstructionPointIndex.Value );
+		}
+
+		private static async Task EditConcreteColumnSections( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
+		{
+			var members = await model.GetMembersAsync();
+
+			// Create the new section
+			var sectionFactory = model.SectionFactory;
+			var newSection = await sectionFactory.GetParametricRectangularSection( MaterialType.Concrete, 500.0, 500.0 );
+
+			// Identify the column at grid intersection 4C
+			var startPoint = constructionPoints[3][2][0];
+			var endPoint = constructionPoints[3][2][2];
+
+			var columnToChange = members.First( ShouldColumnChange );
+
+			foreach( var span in await columnToChange.GetSpanAsync() )
+			{
+				await (span.ElementSection.Value as IMemberSection)?.PhysicalSection.SetValueAndUpdateAsync( newSection );
+			}
+
+			Console.WriteLine( "Concrete column section edited" );
+
+			bool ShouldColumnChange( IMember column ) => startPoint.Index == column.MemberNodes.Value.First().Value.ConstructionPointIndex.Value
+				&& endPoint.Index == column.MemberNodes.Value.Last().Value.ConstructionPointIndex.Value;
 		}
 
 		#endregion
