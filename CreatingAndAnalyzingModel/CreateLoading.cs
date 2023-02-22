@@ -37,6 +37,7 @@ namespace CreatingAndAnalyzingModel
 			foreach( var loadcase in loadcases )
 			{
 				var load = 0.0;
+
 				if( loadcase.Name.Contains( "Dead" ) )
 				{
 					load = 0.004; // 0.004 N/mm^2 = 4kN/m^2
@@ -73,7 +74,7 @@ namespace CreatingAndAnalyzingModel
 			// Find edge beam points where X co-ordinate is 0 at first floor
 			var edgeBeamPoints = constructionPoints.Where( c => Math.Abs( c.Coordinates.Value.X ) < 0.001 && Math.Abs( c.Coordinates.Value.Z - 3000.0 ) < 0.001 );
 
-			foreach( var member in members.Where( m => m.MemberType.Value == MemberType.Beam ) )
+			foreach( var member in members.Where( m => m.Data.Value.MemberType.Value == MemberType.Beam ) )
 			{
 				foreach( var span in await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } ) )
 				{
@@ -132,15 +133,22 @@ namespace CreatingAndAnalyzingModel
 				{
 					case 1:
 						await combination.UserName.SetValueAndUpdateAsync( "Dead + Imposed" );
+
 						break;
+
 					case 2:
 						await combination.UserName.SetValueAndUpdateAsync( "Dead only" );
+
 						break;
+
 					case 3:
 						await combination.UserName.SetValueAndUpdateAsync( "Imposed only" );
+
 						break;
+
 					case 4:
 						await combination.UserName.SetValueAndUpdateAsync( "Dead + Imposed + Snow" );
+
 						break;
 				}
 
@@ -170,9 +178,9 @@ namespace CreatingAndAnalyzingModel
 				await envelope.AddCombinationAsync( combination );
 			}
 
-			static bool AddLoadcaseToCombination( int combinationIndex, LoadcaseType loadcaseType )
+			bool AddLoadcaseToCombination( int combinationIndex, LoadcaseType loadcaseType )
 			{
-				if( combinationIndex == 1 && loadcaseType is LoadcaseType.Dead or LoadcaseType.Imposed )
+				if( combinationIndex == 1 && (loadcaseType == LoadcaseType.Dead || loadcaseType == LoadcaseType.Imposed) )
 					return true;
 
 				if( combinationIndex == 2 && loadcaseType is LoadcaseType.Dead )
@@ -181,7 +189,7 @@ namespace CreatingAndAnalyzingModel
 				if( combinationIndex == 3 && loadcaseType is LoadcaseType.Imposed )
 					return true;
 
-				if( combinationIndex == 4 && loadcaseType is LoadcaseType.Dead or LoadcaseType.Imposed or LoadcaseType.Snow )
+				if( combinationIndex == 4 && (loadcaseType == LoadcaseType.Dead || loadcaseType == LoadcaseType.Imposed || loadcaseType == LoadcaseType.Snow) )
 					return true;
 
 				return false;

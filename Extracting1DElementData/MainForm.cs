@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TSD.API.Remoting;
 
-namespace TsdApiRemotingSample
+namespace Extracting1DElementData
 {
 	public partial class MainForm : Form
 	{
@@ -93,6 +92,7 @@ namespace TsdApiRemotingSample
 			_table.ColumnCount = (int) Math.Ceiling( (double) toPlace / _table.RowCount );
 
 			_table.Controls.Clear();
+
 			for( int i = 0; i < toPlace; i++ )
 				_table.Controls.Add( _pages[i] );
 
@@ -116,12 +116,14 @@ namespace TsdApiRemotingSample
 		private async void OnDirectConnectClick( object sender, EventArgs e )
 		{
 			_directConnect.Enabled = false;
+
 			using( var form = new ConnectionForm() )
 			{
 				if( form.ShowDialog() == DialogResult.OK )
 				{
 					var app = await ApplicationFactory.ConnectToRunningApplicationAsync( form.Host, form.Port );
-					if( app != null && await app.InitializationTask )
+
+					if( app != null )
 					{
 						AddPage( new ApplicationPage( app ) );
 						UpdateStatus();

@@ -1,4 +1,4 @@
-﻿namespace TsdApiRemotingSample
+﻿namespace Extracting1DElementData
 {
 	partial class ApplicationPage
 	{

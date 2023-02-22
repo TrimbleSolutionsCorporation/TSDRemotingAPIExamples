@@ -61,19 +61,20 @@ namespace CreatingAndAnalyzingModel
 
 			// Append the first line which will contain the column headers
 			stringBuilder.AppendLine( "Maximum deflection by beam with critical combination with maximum moment in critical combination" );
+
 			stringBuilder.AppendLine(
-					$"{nameof( BeamDeflectionResults.MemberName )}," +
-					$"{nameof( BeamDeflectionResults.MemberTotalLength )}," +
-					$"{nameof( BeamDeflectionResults.CriticalCombinationName )}," +
-					$"{nameof( BeamDeflectionResults.MaximumDeflectionValue )}," +
-					$"{nameof( BeamDeflectionResults.MaximumDeflectionSpanIndex )}," +
-					$"{nameof( BeamDeflectionResults.MaximumDeflectionPosition )}," +
-					$"{nameof( BeamDeflectionResults.MaximumMomentValue )}," +
-					$"{nameof( BeamDeflectionResults.MaximumMomentSpanIndex )}," +
-					$"{nameof( BeamDeflectionResults.MaximumMomentPosition )}," );
+				$"{nameof( BeamDeflectionResults.MemberName )}," +
+				$"{nameof( BeamDeflectionResults.MemberTotalLength )}," +
+				$"{nameof( BeamDeflectionResults.CriticalCombinationName )}," +
+				$"{nameof( BeamDeflectionResults.MaximumDeflectionValue )}," +
+				$"{nameof( BeamDeflectionResults.MaximumDeflectionSpanIndex )}," +
+				$"{nameof( BeamDeflectionResults.MaximumDeflectionPosition )}," +
+				$"{nameof( BeamDeflectionResults.MaximumMomentValue )}," +
+				$"{nameof( BeamDeflectionResults.MaximumMomentSpanIndex )}," +
+				$"{nameof( BeamDeflectionResults.MaximumMomentPosition )}," );
 
 			// Loop through the beams
-			foreach( var member in members.Where( m => m.MemberType.Value == MemberType.Beam ) )
+			foreach( var member in members.Where( m => m.Data.Value.MemberType.Value == MemberType.Beam ) )
 			{
 				double totalLength = 0.0;
 
@@ -176,19 +177,20 @@ namespace CreatingAndAnalyzingModel
 
 			// Append the first line which will contain the column headers
 			stringBuilder.AppendLine( "Maximum major moment minor moment and axial force in each column stack" );
+
 			stringBuilder.AppendLine(
-					$"{nameof( ColumnResults.MemberName )}," +
-					$"{nameof( ColumnResults.SpanNumber )}," +
-					$"{nameof( ColumnResults.SpanLength )}," +
-					$"{nameof( ColumnResults.CriticalMajorMomentCombinationName )}," +
-					$"{nameof( ColumnResults.MaximumMajorMomentValue )}," +
-					$"{nameof( ColumnResults.CriticalMinorMomentCombinationName )}," +
-					$"{nameof( ColumnResults.MaximumMinorMomentValue )}," +
-					$"{nameof( ColumnResults.CriticalAxialForceCombinationName )}," +
-					$"{nameof( ColumnResults.MaximumAxialForceValue )}," );
+				$"{nameof( ColumnResults.MemberName )}," +
+				$"{nameof( ColumnResults.SpanNumber )}," +
+				$"{nameof( ColumnResults.SpanLength )}," +
+				$"{nameof( ColumnResults.CriticalMajorMomentCombinationName )}," +
+				$"{nameof( ColumnResults.MaximumMajorMomentValue )}," +
+				$"{nameof( ColumnResults.CriticalMinorMomentCombinationName )}," +
+				$"{nameof( ColumnResults.MaximumMinorMomentValue )}," +
+				$"{nameof( ColumnResults.CriticalAxialForceCombinationName )}," +
+				$"{nameof( ColumnResults.MaximumAxialForceValue )}," );
 
 			// Loop through the columns
-			foreach( var member in members.Where( m => m.MemberType.Value == MemberType.Column ) )
+			foreach( var member in members.Where( m => m.Data.Value.MemberType.Value == MemberType.Column ) )
 			{
 				foreach( var span in await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } ) )
 				{
@@ -310,18 +312,19 @@ namespace CreatingAndAnalyzingModel
 
 			// Append the first line which will contain the column headers
 			stringBuilder.AppendLine( "Forces at mid-span" );
+
 			stringBuilder.AppendLine(
-					$"{nameof( MidSpanResults.MemberName )}," +
-					$"{nameof( MidSpanResults.MidSpanPosition )}," +
-					$"{nameof( MidSpanResults.CombinationName )}," +
-					$"{nameof( MidSpanResults.MidSpanMajorMomentValue )}," +
-					$"{nameof( MidSpanResults.MidSpanMajorShearValue )}," +
-					$"{nameof( MidSpanResults.MidSpanAxialValue )}," +
-					$"{nameof( MidSpanResults.MidSpanTorsionValue )}," +
-					$"{nameof( MidSpanResults.MidSpanDeflectionValue )}," );
+				$"{nameof( MidSpanResults.MemberName )}," +
+				$"{nameof( MidSpanResults.MidSpanPosition )}," +
+				$"{nameof( MidSpanResults.CombinationName )}," +
+				$"{nameof( MidSpanResults.MidSpanMajorMomentValue )}," +
+				$"{nameof( MidSpanResults.MidSpanMajorShearValue )}," +
+				$"{nameof( MidSpanResults.MidSpanAxialValue )}," +
+				$"{nameof( MidSpanResults.MidSpanTorsionValue )}," +
+				$"{nameof( MidSpanResults.MidSpanDeflectionValue )}," );
 
 			// Loop through the beams and columns
-			foreach( var member in members.Where( m => m.MemberType.Value is MemberType.Beam or MemberType.Column ) )
+			foreach( var member in members.Where( m => m.Data.Value.MemberType.Value == MemberType.Beam || m.Data.Value.MemberType.Value == MemberType.Column ) )
 			{
 				foreach( var span in await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } ) )
 				{

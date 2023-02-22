@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace TsdApiRemotingSample
+namespace Extracting1DElementData
 {
 	public partial class ConnectionForm : Form
 	{

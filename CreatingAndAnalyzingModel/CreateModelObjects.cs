@@ -124,6 +124,7 @@ namespace CreatingAndAnalyzingModel
 			var listX = new List<List<List<IConstructionPoint>>>();
 
 			var index = 0;
+
 			for( var x = 0; x < xCount; x++ )
 			{
 				var listY = new List<List<IConstructionPoint>>();
@@ -142,461 +143,470 @@ namespace CreatingAndAnalyzingModel
 
 		private static async Task CreateStructuralWalls( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using var attrSet1 = await model.CreateStructuralWallAttributeSetAsync();
-
-			// Set initial properties for a wall
-			await attrSet1.StructuralWallData.Value.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
-			await attrSet1.StructuralWallData.Value.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
-			await attrSet1.StructuralWallData.Value.SupportData.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mz );
-			await attrSet1.StructuralWallPanelData.Value.Thickness.SetValueAndUpdateAsync( 300.0 );
-			await attrSet1.StructuralWallPanelData.Value.Alignment.SetValueAndUpdateAsync( WallPanelAlignment.Front );
-			await attrSet1.StructuralWallPanelData.Value.Material.SetValueAndUpdateAsync( attrSet1.StructuralWallPanelData.Value.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
-			await attrSet1.StructuralWallPanelData.Value.ExtensionLeftEnd.SetValueAndUpdateAsync( 100.0 );
-
 			var createParams = new List<StructuralWallParams>();
 
-			// These points define the outline of the wall
-			var points = new List<IConstructionPoint>
+			using( var attrSet1 = await model.CreateStructuralWallAttributeSetAsync() )
 			{
-				constructionPoints[2][0][0],
-				constructionPoints[3][0][0],
-				constructionPoints[3][0][2],
-				constructionPoints[2][0][2],
-			};
+				// Set initial properties for a wall
+				await attrSet1.StructuralWallData.Value.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
+				await attrSet1.StructuralWallData.Value.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
+				await attrSet1.StructuralWallData.Value.SupportData.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mz );
+				await attrSet1.StructuralWallPanelData.Value.Thickness.SetValueAndUpdateAsync( 300.0 );
+				await attrSet1.StructuralWallPanelData.Value.Alignment.SetValueAndUpdateAsync( WallPanelAlignment.Front );
+				await attrSet1.StructuralWallPanelData.Value.Material.SetValueAndUpdateAsync( attrSet1.StructuralWallPanelData.Value.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
+				await attrSet1.StructuralWallPanelData.Value.ExtensionLeftEnd.SetValueAndUpdateAsync( 100.0 );
 
-			createParams.Add( new StructuralWallParams( points, attrSet1 ) );
+				// These points define the outline of the wall
+				var points = new List<IConstructionPoint>
+				{
+					constructionPoints[2][0][0],
+					constructionPoints[3][0][0],
+					constructionPoints[3][0][2],
+					constructionPoints[2][0][2],
+				};
 
-			using var attrSet2 = await model.CreateStructuralWallAttributeSetAsync();
+				createParams.Add( new StructuralWallParams( points, attrSet1 ) );
+			}
 
-			await attrSet2.StructuralWallData.Value.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
-			await attrSet2.StructuralWallData.Value.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
-			await attrSet2.StructuralWallData.Value.SupportData.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mz );
-			await attrSet2.StructuralWallPanelData.Value.Thickness.SetValueAndUpdateAsync( 400.0 );
-			await attrSet2.StructuralWallPanelData.Value.Alignment.SetValueAndUpdateAsync( WallPanelAlignment.User );
-			await attrSet2.StructuralWallPanelData.Value.Material.SetValueAndUpdateAsync( attrSet2.StructuralWallPanelData.Value.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
-			await attrSet2.StructuralWallPanelData.Value.AlignmentOffset.SetValueAndUpdateAsync( 100.0 );
-			await attrSet2.StructuralWallPanelData.Value.ExtensionRightEnd.SetValueAndUpdateAsync( 100.0 );
-
-			points = new List<IConstructionPoint>
+			using( var attrSet2 = await model.CreateStructuralWallAttributeSetAsync() )
 			{
-				constructionPoints[3][0][0],
-				constructionPoints[3][1][0],
-				constructionPoints[3][1][2],
-				constructionPoints[3][0][2],
-			};
+				await attrSet2.StructuralWallData.Value.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
+				await attrSet2.StructuralWallData.Value.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
+				await attrSet2.StructuralWallData.Value.SupportData.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mz );
+				await attrSet2.StructuralWallPanelData.Value.Thickness.SetValueAndUpdateAsync( 400.0 );
+				await attrSet2.StructuralWallPanelData.Value.Alignment.SetValueAndUpdateAsync( WallPanelAlignment.User );
+				await attrSet2.StructuralWallPanelData.Value.Material.SetValueAndUpdateAsync( attrSet2.StructuralWallPanelData.Value.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
+				await attrSet2.StructuralWallPanelData.Value.AlignmentOffset.SetValueAndUpdateAsync( 100.0 );
+				await attrSet2.StructuralWallPanelData.Value.ExtensionRightEnd.SetValueAndUpdateAsync( 100.0 );
 
-			createParams.Add( new StructuralWallParams( points, attrSet2 ) );
+				var points = new List<IConstructionPoint>
+				{
+					constructionPoints[3][0][0],
+					constructionPoints[3][1][0],
+					constructionPoints[3][1][2],
+					constructionPoints[3][0][2],
+				};
 
-			await model.CreateEntityAsync( createParams );
+				createParams.Add( new StructuralWallParams( points, attrSet2 ) );
+
+				await model.CreateEntityAsync( createParams );
+			}
 
 			Console.WriteLine( "Structural walls created" );
 		}
 
 		private static async Task CreateConcreteColumns( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using var memberAttributeSet = await model.CreateMemberAttributeSetAsync();
-
-			// Set initial properties for the columns
-			await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Column );
-			await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
-			await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
-			await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.AutoDesignOption.SetValueAndUpdateAsync( AutoDesignOption.StartingFromMinima );
-			await memberAttributeSet.RotationOption.SetValueAndUpdateAsync( RotationOption.Degrees0 );
-			await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
-			await memberAttributeSet.AutoAlign.SetValueAndUpdateAsync( false );
-			await memberAttributeSet.Alignment.Value.SnapLevelMajor.SetValueAndUpdateAsync( SectionSnapLevel.Center );
-			await memberAttributeSet.Alignment.Value.SnapLevelMinor.SetValueAndUpdateAsync( SectionSnapLevel.Center );
-
-			var points = new List<IConstructionPoint>();
-
-			for( var z = 0; z < 3; z++ )
+			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
 			{
-				points.Add( constructionPoints[2][1][z] );
+				// Set initial properties for the columns
+				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Column );
+				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
+				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
+				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.AutoDesignOption.SetValueAndUpdateAsync( AutoDesignOption.StartingFromMinima );
+				await memberAttributeSet.RotationOption.SetValueAndUpdateAsync( RotationOption.Degrees0 );
+				await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
+				await memberAttributeSet.AutoAlign.SetValueAndUpdateAsync( false );
+				await memberAttributeSet.Alignment.Value.SnapLevelMajor.SetValueAndUpdateAsync( SectionSnapLevel.Center );
+				await memberAttributeSet.Alignment.Value.SnapLevelMinor.SetValueAndUpdateAsync( SectionSnapLevel.Center );
+
+				var points = new List<IConstructionPoint>();
+
+				for( var z = 0; z < 3; z++ )
+				{
+					points.Add( constructionPoints[2][1][z] );
+				}
+
+				var memberParams = new List<MemberParams>()
+				{
+					new MemberParams( points, memberAttributeSet ),
+				};
+
+				await model.CreateEntityAsync( memberParams );
+
+				// Change the initial parameters for the next column so that the outside of the column aligns with the gridline
+				await memberAttributeSet.Alignment.Value.SnapLevelMajor.SetValueAndUpdateAsync( SectionSnapLevel.Outline1 );
+
+				points = new List<IConstructionPoint>();
+
+				for( var z = 0; z < 3; z++ )
+				{
+					points.Add( constructionPoints[2][2][z] );
+				}
+
+				memberParams = new List<MemberParams>()
+				{
+					new MemberParams( points, memberAttributeSet ),
+				};
+
+				await model.CreateEntityAsync( memberParams );
+
+				// Change the initial parameters for the next column so that the outsides of the column align with the gridlines
+				await memberAttributeSet.Alignment.Value.SnapLevelMajor.SetValueAndUpdateAsync( SectionSnapLevel.Outline1 );
+				await memberAttributeSet.Alignment.Value.SnapLevelMinor.SetValueAndUpdateAsync( SectionSnapLevel.Outline1 );
+
+				points = new List<IConstructionPoint>();
+
+				for( var z = 0; z < 3; z++ )
+				{
+					points.Add( constructionPoints[3][2][z] );
+				}
+
+				memberParams = new List<MemberParams>()
+				{
+					new MemberParams( points, memberAttributeSet ),
+				};
+
+				await model.CreateEntityAsync( memberParams );
+
+				Console.WriteLine( "Concrete columns created" );
 			}
-
-			var memberParams = new List<MemberParams>()
-			{
-				new MemberParams( points, memberAttributeSet ),
-			};
-
-			await model.CreateEntityAsync( memberParams );
-
-			// Change the initial parameters for the next column so that the outside of the column aligns with the gridline
-			await memberAttributeSet.Alignment.Value.SnapLevelMajor.SetValueAndUpdateAsync( SectionSnapLevel.Outline1 );
-
-			points = new List<IConstructionPoint>();
-
-			for( var z = 0; z < 3; z++ )
-			{
-				points.Add( constructionPoints[2][2][z] );
-			}
-
-			memberParams = new List<MemberParams>()
-			{
-				new MemberParams( points, memberAttributeSet ),
-			};
-
-			await model.CreateEntityAsync( memberParams );
-
-			// Change the initial parameters for the next column so that the outsides of the column align with the gridlines
-			await memberAttributeSet.Alignment.Value.SnapLevelMajor.SetValueAndUpdateAsync( SectionSnapLevel.Outline1 );
-			await memberAttributeSet.Alignment.Value.SnapLevelMinor.SetValueAndUpdateAsync( SectionSnapLevel.Outline1 );
-
-			points = new List<IConstructionPoint>();
-
-			for( var z = 0; z < 3; z++ )
-			{
-				points.Add( constructionPoints[3][2][z] );
-			}
-
-			memberParams = new List<MemberParams>()
-			{
-				new MemberParams( points, memberAttributeSet ),
-			};
-
-			await model.CreateEntityAsync( memberParams );
-
-			Console.WriteLine( "Concrete columns created" );
 		}
 
 		private static async Task CreateSteelColumns( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using var memberAttributeSet = await model.CreateMemberAttributeSetAsync();
-
-			// Set initial properties for the columns
-			await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Column );
-			await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Steel );
-			await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.SteelColumn );
-			await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Rolled );
-			await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.RotationOption.SetValueAndUpdateAsync( RotationOption.Degrees0 );
-			await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "S355" ) );
-
-			var memberParams = new List<MemberParams>();
-
-			for( var x = 0; x < 2; x++ )
+			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
 			{
-				for( var y = 0; y < 3; y++ )
+				// Set initial properties for the columns
+				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Column );
+				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Steel );
+				await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.SteelColumn );
+				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Rolled );
+				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.RotationOption.SetValueAndUpdateAsync( RotationOption.Degrees0 );
+				await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "S355" ) );
+
+				var memberParams = new List<MemberParams>();
+
+				for( var x = 0; x < 2; x++ )
 				{
-					var points = new List<IConstructionPoint>();
-
-					for( var z = 0; z < 3; z++ )
+					for( var y = 0; y < 3; y++ )
 					{
-						points.Add( constructionPoints[x][y][z] );
+						var points = new List<IConstructionPoint>();
+
+						for( var z = 0; z < 3; z++ )
+						{
+							points.Add( constructionPoints[x][y][z] );
+						}
+
+						memberParams.Add( new MemberParams( points, memberAttributeSet ) );
 					}
-
-					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
 				}
+
+				await model.CreateEntityAsync( memberParams );
+
+				Console.WriteLine( "Steel columns created" );
 			}
-
-			await model.CreateEntityAsync( memberParams );
-
-			Console.WriteLine( "Steel columns created" );
 		}
 
 		private static async Task CreateConcreteBeams( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using var memberAttributeSet = await model.CreateMemberAttributeSetAsync();
-
-			// Set initial properties for the beams
-			await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Beam );
-			await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
-			await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.ConcreteBeam );
-			await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
-			await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.AutoDesignOption.SetValueAndUpdateAsync( AutoDesignOption.StartingFromMinima );
-			await memberAttributeSet.GravityOnly.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
-			await memberAttributeSet.StartReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.My );
-			await memberAttributeSet.StartReleases.Value.MajorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
-			await memberAttributeSet.EndReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.Mz );
-			await memberAttributeSet.EndReleases.Value.MinorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
-			await memberAttributeSet.AutoAlign.SetValueAndUpdateAsync( false );
-			await memberAttributeSet.ConsiderFlanges.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.IncreaseReinforcementIfDeflectionCheckFails.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.IncludeFlangesInAnalysis.SetValueAndUpdateAsync( true );
-
-			var memberParams = new List<MemberParams>();
-
-			// Four concrete beams will be created
-			for( var z = 1; z < 3; z++ )
+			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
 			{
-				var points = new List<IConstructionPoint>();
+				// Set initial properties for the beams
+				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Beam );
+				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
+				await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.ConcreteBeam );
+				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
+				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.AutoDesignOption.SetValueAndUpdateAsync( AutoDesignOption.StartingFromMinima );
+				await memberAttributeSet.GravityOnly.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
+				await memberAttributeSet.StartReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.My );
+				await memberAttributeSet.StartReleases.Value.MajorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
+				await memberAttributeSet.EndReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.Mz );
+				await memberAttributeSet.EndReleases.Value.MinorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
+				await memberAttributeSet.AutoAlign.SetValueAndUpdateAsync( false );
+				await memberAttributeSet.ConsiderFlanges.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.IncreaseReinforcementIfDeflectionCheckFails.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.IncludeFlangesInAnalysis.SetValueAndUpdateAsync( true );
 
-				for( var x = 2; x < 4; x++ )
+				var memberParams = new List<MemberParams>();
+
+				// Four concrete beams will be created
+				for( var z = 1; z < 3; z++ )
 				{
-					points.Add( constructionPoints[x][1][z] );
+					var points = new List<IConstructionPoint>();
+
+					for( var x = 2; x < 4; x++ )
+					{
+						points.Add( constructionPoints[x][1][z] );
+					}
+
+					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+
+					points = new List<IConstructionPoint>();
+
+					for( var y = 0; y < 3; y++ )
+					{
+						points.Add( constructionPoints[2][y][z] );
+					}
+
+					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+
+					points = new List<IConstructionPoint>();
+
+					for( var x = 2; x < 4; x++ )
+					{
+						points.Add( constructionPoints[x][2][z] );
+					}
+
+					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+
+					points = new List<IConstructionPoint>();
+
+					for( var y = 1; y < 3; y++ )
+					{
+						points.Add( constructionPoints[3][y][z] );
+					}
+
+					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
 				}
 
-				memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+				var members = (await model.CreateEntityAsync( memberParams )).Cast<IMember>().ToList();
 
-				points = new List<IConstructionPoint>();
-
-				for( var y = 0; y < 3; y++ )
+				// Alignments will be changed for the exterior beams so that the outside edges align with the gridlines
+				var alignmentChangeMembers = new List<IMember>()
 				{
-					points.Add( constructionPoints[2][y][z] );
+					members[2],
+					members[6],
+				};
+
+				var collectableEntities = new List<IEntity>( alignmentChangeMembers );
+				var collectableEntitySpans = new List<ISubEntity>();
+
+				foreach( var member in alignmentChangeMembers )
+				{
+					var memberSpans = (await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } )).ToList();
+
+					collectableEntitySpans.AddRange( memberSpans );
+
+					foreach( var memberSpan in memberSpans )
+					{
+						memberSpan.Data.Value.Alignment.Value.SnapLevelMinor.Value = SectionSnapLevel.Outline0;
+					}
 				}
 
-				memberParams.Add( new MemberParams( points, memberAttributeSet ) );
-
-				points = new List<IConstructionPoint>();
-
-				for( var x = 2; x < 4; x++ )
+				alignmentChangeMembers = new List<IMember>()
 				{
-					points.Add( constructionPoints[x][2][z] );
+					members[3],
+					members[7],
+				};
+
+				collectableEntities.AddRange( alignmentChangeMembers );
+
+				foreach( var member in alignmentChangeMembers )
+				{
+					var memberSpans = (await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } )).ToList();
+
+					collectableEntitySpans.AddRange( memberSpans );
+
+					foreach( var memberSpan in memberSpans )
+					{
+						memberSpan.Data.Value.Alignment.Value.SnapLevelMinor.Value = SectionSnapLevel.Outline1;
+					}
 				}
 
-				memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+				await model.CreateEntityCollector( collectableEntities ).ApplyEntityAsync();
+				await model.CreateSubEntityCollector( collectableEntitySpans ).ApplySubEntityAsync();
 
-				points = new List<IConstructionPoint>();
-
-				for( var y = 1; y < 3; y++ )
-				{
-					points.Add( constructionPoints[3][y][z] );
-				}
-
-				memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+				Console.WriteLine( "Concrete beams created" );
 			}
-
-			var members = (await model.CreateEntityAsync( memberParams )).Cast<IMember>().ToList();
-
-			// Alignments will be changed for the exterior beams so that the outside edges align with the gridlines
-			var alignmentChangeMembers = new List<IMember>()
-			{
-				members[2],
-				members[6],
-			};
-
-			var collectableEntities = new List<IEntity>( alignmentChangeMembers );
-			var collectableEntitySpans = new List<ISubEntity>();
-
-			foreach( var member in alignmentChangeMembers )
-			{
-				var memberSpans = (await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } )).ToList();
-
-				collectableEntitySpans.AddRange( memberSpans );
-
-				foreach( var memberSpan in memberSpans )
-				{
-					memberSpan.Alignment.Value.SnapLevelMinor.Value = SectionSnapLevel.Outline0;
-				}
-			}
-
-			alignmentChangeMembers = new List<IMember>()
-			{
-				members[3],
-				members[7],
-			};
-
-			collectableEntities.AddRange( alignmentChangeMembers );
-
-			foreach( var member in alignmentChangeMembers )
-			{
-				var memberSpans = (await member.GetSpanAsync( new[] { 0, member.SpanCount.Value - 1 } )).ToList();
-
-				collectableEntitySpans.AddRange( memberSpans );
-
-				foreach( var memberSpan in memberSpans )
-				{
-					memberSpan.Alignment.Value.SnapLevelMinor.Value = SectionSnapLevel.Outline1;
-				}
-			}
-
-			await model.CreateEntityCollector( collectableEntities ).ApplyEntityAsync();
-			await model.CreateSubEntityCollector( collectableEntitySpans ).ApplySubEntityAsync();
-
-			Console.WriteLine( "Concrete beams created" );
 		}
 
 		private static async Task CreateSteelBeams( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using var memberAttributeSet = await model.CreateMemberAttributeSetAsync();
-
-			// Set initial properties for the beams
-			await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Beam );
-			await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Steel );
-			await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.SteelBeam );
-			await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Rolled );
-			await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.GravityOnly.SetValueAndUpdateAsync( true );
-			await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "S355" ) );
-			await memberAttributeSet.StartReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.My );
-			await memberAttributeSet.StartReleases.Value.MajorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
-			await memberAttributeSet.EndReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.Mz );
-			await memberAttributeSet.EndReleases.Value.MinorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
-
-			var memberParams = new List<MemberParams>();
-
-			for( var z = 1; z < 3; z++ )
+			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
 			{
-				for( var y = 0; y < 3; y++ )
+				// Set initial properties for the beams
+				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Beam );
+				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Steel );
+				await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.SteelBeam );
+				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Rolled );
+				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.GravityOnly.SetValueAndUpdateAsync( true );
+				await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "S355" ) );
+				await memberAttributeSet.StartReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.My );
+				await memberAttributeSet.StartReleases.Value.MajorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
+				await memberAttributeSet.EndReleases.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fx | DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mx | DegreeOfFreedom.Mz );
+				await memberAttributeSet.EndReleases.Value.MinorRotationalStiffness.Value.Type.SetValueAndUpdateAsync( SpringStiffness.Fixed );
+
+				var memberParams = new List<MemberParams>();
+
+				for( var z = 1; z < 3; z++ )
 				{
-					var points = new List<IConstructionPoint>();
-
-					for( var x = 0; x < 3; x++ )
-					{
-						points.Add( constructionPoints[x][y][z] );
-					}
-
-					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
-				}
-
-				for( var x = 0; x < 2; x++ )
-				{
-					var points = new List<IConstructionPoint>();
-
 					for( var y = 0; y < 3; y++ )
 					{
-						points.Add( constructionPoints[x][y][z] );
+						var points = new List<IConstructionPoint>();
+
+						for( var x = 0; x < 3; x++ )
+						{
+							points.Add( constructionPoints[x][y][z] );
+						}
+
+						memberParams.Add( new MemberParams( points, memberAttributeSet ) );
 					}
 
-					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+					for( var x = 0; x < 2; x++ )
+					{
+						var points = new List<IConstructionPoint>();
+
+						for( var y = 0; y < 3; y++ )
+						{
+							points.Add( constructionPoints[x][y][z] );
+						}
+
+						memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+					}
 				}
+
+				var members = (await model.CreateEntityAsync( memberParams )).Cast<IMember>().ToList();
+
+				Console.WriteLine( "Steel beams created" );
 			}
-
-			var members = (await model.CreateEntityAsync( memberParams )).Cast<IMember>().ToList();
-
-			Console.WriteLine( "Steel beams created" );
 		}
 
 		private static async Task CreateSlabItems( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using var attrSet = await model.CreateSlabItemAttributeSetAsync( SlabItemAttributeSetParams.General() );
-
-			// Set initial properties for the slabs
-			await attrSet.SlabData.Value.SlabType.SetValueAndUpdateAsync( SlabType.OnBeams );
-			await attrSet.SlabData.Value.ConcreteType.SetValueAndUpdateAsync( ConcreteType.Normal );
-			await attrSet.SlabData.Value.Material.SetValueAndUpdateAsync( attrSet.SlabData.Value.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
-			await attrSet.SlabData.Value.Depth.SetValueAndUpdateAsync( 200.0 );
-
-			var createParams = new List<SlabItemParams>();
-
-			var entities = new List<ISlabItem>();
-
-			// A slab item will be created within each bay on the first and second levels
-			for( int z = 1; z < 3; z++ )
+			using( var attrSet = await model.CreateSlabItemAttributeSetAsync( SlabItemAttributeSetParams.General() ) )
 			{
-				bool firstSlabItemOnLevel = true;
+				// Set initial properties for the slabs
+				await attrSet.SlabData.Value.SlabType.SetValueAndUpdateAsync( SlabType.OnBeams );
+				await attrSet.SlabData.Value.ConcreteType.SetValueAndUpdateAsync( ConcreteType.Normal );
+				await attrSet.SlabData.Value.Material.SetValueAndUpdateAsync( attrSet.SlabData.Value.Material.ValidValues.FirstOrDefault( item => item.Name == "C35/45" ) );
+				await attrSet.SlabData.Value.Depth.SetValueAndUpdateAsync( 200.0 );
 
-				for( int y = 0; y < 2; y++ )
+				var createParams = new List<SlabItemParams>();
+
+				var entities = new List<ISlabItem>();
+
+				// A slab item will be created within each bay on the first and second levels
+				for( int z = 1; z < 3; z++ )
 				{
-					for( int x = 0; x < 3; x++ )
+					bool firstSlabItemOnLevel = true;
+
+					for( int y = 0; y < 2; y++ )
 					{
-						var points = new List<IConstructionPoint>
+						for( int x = 0; x < 3; x++ )
 						{
-							constructionPoints[x][y][z],
-							constructionPoints[(x + 1) % 4][y][z],
-							constructionPoints[(x + 1) % 4][(y + 1) % 3][z],
-							constructionPoints[x][(y + 1) % 3][z],
-						};
+							var points = new List<IConstructionPoint>
+							{
+								constructionPoints[x][y][z],
+								constructionPoints[(x + 1) % 4][y][z],
+								constructionPoints[(x + 1) % 4][(y + 1) % 3][z],
+								constructionPoints[x][(y + 1) % 3][z],
+							};
 
-						if( firstSlabItemOnLevel )
-						{
-							// First slab item at this level - this will create a new Slab
-							createParams.Add( SlabItemParams.SearchForSlab( points, attrSet ) );
+							if( firstSlabItemOnLevel )
+							{
+								// First slab item at this level - this will create a new Slab
+								createParams.Add( SlabItemParams.SearchForSlab( points, attrSet ) );
+							}
+							else
+							{
+								// Add slab item to existing slab on this level
+								int slabIndex = entities.LastOrDefault()?.SlabIndex.Value ?? 0;
+								createParams.Add( SlabItemParams.AddToSlab( points, attrSet, slabIndex ) );
+							}
+
+							entities.AddRange( (await model.CreateEntityAsync( createParams )).Cast<ISlabItem>() );
+
+							createParams.Clear();
+							firstSlabItemOnLevel = false;
 						}
-						else
-						{
-							// Add slab item to existing slab on this level
-							int slabIndex = entities.LastOrDefault()?.SlabIndex.Value ?? 0;
-							createParams.Add( SlabItemParams.AddToSlab( points, attrSet, slabIndex ) );
-						}
-
-						entities.AddRange( (await model.CreateEntityAsync( createParams )).Cast<ISlabItem>() );
-
-						createParams.Clear();
-						firstSlabItemOnLevel = false;
 					}
 				}
-			}
 
-			Console.WriteLine( "Slab items created" );
+				Console.WriteLine( "Slab items created" );
+			}
 		}
 
 		private static async Task CreateIsolatedFoundations( TSD.API.Remoting.Structure.IModel model )
 		{
-			using var padBaseAttrSet = await model.CreatePadBaseAttributeSetAsync();
-
-			var padBaseEntities = new List<IEntity>();
-
-			var columns = (await model.GetMembersAsync()).Where( item => item.MemberType.Value == MemberType.Column ).ToList();
-
-			// Pad bases will be added beneath all concrete columns and walls
-			padBaseEntities.AddRange( columns.Where( c => c.MaterialType.Value == MaterialType.Concrete ) );
-
-			var structuralWalls = (await model.GetStructuralWallsAsync()).ToList();
-			padBaseEntities.AddRange( structuralWalls );
-
-			var createParams = padBaseEntities.Select( e => new IsolatedFoundationParams( e, padBaseAttrSet ) ).ToList();
-
-			var entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
-
-			var changeEntities = new List<IEntity>();
-
-			// Edit the depth of all pad bases, and the length of bases under walls
-			foreach( var padBase in entities )
+			using( var padBaseAttrSet = await model.CreatePadBaseAttributeSetAsync() )
 			{
-				padBase.IsolatedFoundationData.Value.Depth.Value = 500.0;
+				var padBaseEntities = new List<IEntity>();
 
-				if( padBase.SupportedMemberType.Value == SupportedMemberType.Wall )
+				var columns = (await model.GetMembersAsync()).Where( item => item.Data.Value.MemberType.Value == MemberType.Column ).ToList();
+
+				// Pad bases will be added beneath all concrete columns and walls
+				padBaseEntities.AddRange( columns.Where( c => c.Data.Value.MaterialType.Value == MaterialType.Concrete ) );
+
+				var structuralWalls = (await model.GetStructuralWallsAsync()).ToList();
+				padBaseEntities.AddRange( structuralWalls );
+
+				var createParams = padBaseEntities.Select( e => new IsolatedFoundationParams( e, padBaseAttrSet ) ).ToList();
+
+				var entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
+
+				var changeEntities = new List<IEntity>();
+
+				// Edit the depth of all pad bases, and the length of bases under walls
+				foreach( var padBase in entities )
 				{
-					var wall = (await model.GetStructuralWallsAsync( Enumerable.Repeat( padBase.SupportedEntityInfo.Value.Index, 1 ) )).First();
-					var firstPanel = (await wall.GetSpanAsync( new[] { 0 } )).First();
+					padBase.IsolatedFoundationData.Value.Depth.Value = 500.0;
 
-					// Set the length of the foundation to extend 1m beyond the bottom panel ends
-					padBase.IsolatedFoundationData.Value.LengthDir1.Value = firstPanel.BottomSegment.Value.Magnitude.Value + firstPanel.WallPanelData.Value.ExtensionLeftEnd.Value
-						+ firstPanel.WallPanelData.Value.ExtensionRightEnd.Value + 2000.0;
+					if( padBase.SupportedMemberType.Value == SupportedMemberType.Wall )
+					{
+						var wall = (await model.GetStructuralWallsAsync( Enumerable.Repeat( padBase.SupportedEntityInfo.Value.Index, 1 ) )).First();
+						var firstPanel = (await wall.GetSpanAsync( new[] { 0 } )).First();
+
+						// Set the length of the foundation to extend 1m beyond the bottom panel ends
+						padBase.IsolatedFoundationData.Value.LengthDir1.Value = firstPanel.BottomSegment.Value.Magnitude.Value + firstPanel.WallPanelData.Value.ExtensionLeftEnd.Value
+							+ firstPanel.WallPanelData.Value.ExtensionRightEnd.Value + 2000.0;
+					}
+
+					changeEntities.Add( padBase );
 				}
 
-				changeEntities.Add( padBase );
+				await model.CreateEntityCollector( changeEntities ).ApplyEntityAsync();
+
+				// A pile type must be defined in the model to allow creation of pile caps
+				var pileType1 = await model.CreatePileTypeAsync( new PileTypeParams( "PileType1" )
+				{
+					PileTypeInstallationType = PileTypeInstallationType.Driven,
+					PileTypeShape = PileTypeShape.Circular,
+					Dimension = 400.0,
+					Length = 12.0 * 1.0E3,
+					Embedment = 120.0,
+					AxialCompressiveResistance = 500.0 * 1.0E03,
+					AxialTensileResistance = 500.0 * 1.0E03,
+					AxialCompressiveResistanceEcStr = 500.0 * 1.0E03,
+					AxialTensileResistanceEcStr = 500.0 * 1.0E03,
+					Linearity = SpringStiffness.SpringNonLinear,
+					CompressionStiffnessVertical = 12000.0,
+					TensionStiffnessVertical = 15000.0,
+					CompressionLimitVertical = 1200.0 * 1.0E3,
+					TensionLimitVertical = 1500.0 * 1.0E3,
+					HorizontalRestraint = SpringStiffness.Fixed,
+					LoadTransferType = PileTypeLoadTransferType.EndBearing,
+					LateralResistance = 20.0 * 1.0E03,
+					LateralResistanceStr = 20.0 * 1.0E03,
+					VolumeAdjustmentPercentage = 1.0,
+				} );
+
+				using( var pileCapAttrSet = await model.CreatePileCapAttributeSetAsync( new PileCapAttributeSetParams( pileType1 ) ) )
+				{
+					var pileCapEntities = new List<IEntity>();
+
+					// Pile caps will be added beneath all steel columns
+					pileCapEntities.AddRange( columns.Where( c => c.Data.Value.MaterialType.Value == MaterialType.Steel ) );
+
+					createParams = pileCapEntities.Select( e => new IsolatedFoundationParams( e, pileCapAttrSet ) ).ToList();
+
+					entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
+
+					// Edit the depth and number of piles for each pile cap
+					foreach( var pileCap in entities )
+					{
+						await pileCap.IsolatedFoundationData.Value.Depth.SetValueAndUpdateAsync( 800.0 );
+						await ((IPileCapData) pileCap.IsolatedFoundationData.Value).NumberOfPiles.SetValueAndUpdateAsync( 3 );
+					}
+				}
+
+				Console.WriteLine( "Isolated foundations created" );
 			}
-
-			await model.CreateEntityCollector( changeEntities ).ApplyEntityAsync();
-
-			// A pile type must be defined in the model to allow creation of pile caps
-			var pileType1 = await model.CreatePileTypeAsync( new PileTypeParams( "PileType1" )
-			{
-				PileTypeInstallationType = PileTypeInstallationType.Driven,
-				PileTypeShape = PileTypeShape.Circular,
-				Dimension = 400.0,
-				Length = 12.0 * 1.0E3,
-				Embedment = 120.0,
-				AxialCompressiveResistance = 500.0 * 1.0E03,
-				AxialTensileResistance = 500.0 * 1.0E03,
-				AxialCompressiveResistanceEcStr = 500.0 * 1.0E03,
-				AxialTensileResistanceEcStr = 500.0 * 1.0E03,
-				Linearity = SpringStiffness.SpringNonLinear,
-				CompressionStiffnessVertical = 12000.0,
-				TensionStiffnessVertical = 15000.0,
-				CompressionLimitVertical = 1200.0 * 1.0E3,
-				TensionLimitVertical = 1500.0 * 1.0E3,
-				HorizontalRestraint = SpringStiffness.Fixed,
-				LoadTransferType = PileTypeLoadTransferType.EndBearing,
-				LateralResistance = 20.0 * 1.0E03,
-				LateralResistanceStr = 20.0 * 1.0E03,
-				VolumeAdjustmentPercentage = 1.0,
-			} );
-
-			using var pileCapAttrSet = await model.CreatePileCapAttributeSetAsync( new PileCapAttributeSetParams( pileType1 ) );
-
-			var pileCapEntities = new List<IEntity>();
-
-			// Pile caps will be added beneath all steel columns
-			pileCapEntities.AddRange( columns.Where( c => c.MaterialType.Value == MaterialType.Steel ) );
-
-			createParams = pileCapEntities.Select( e => new IsolatedFoundationParams( e, pileCapAttrSet ) ).ToList();
-
-			entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
-
-			// Edit the depth and number of piles for each pile cap
-			foreach( var pileCap in entities )
-			{
-				await pileCap.IsolatedFoundationData.Value.Depth.SetValueAndUpdateAsync( 800.0 );
-				await ((IPileCapData) pileCap.IsolatedFoundationData.Value).NumberOfPiles.SetValueAndUpdateAsync( 3 );
-			}
-
-			Console.WriteLine( "Isolated foundations created" );
 		}
 
 		private static async Task EditSteelBeamSections( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
@@ -605,6 +615,7 @@ namespace CreatingAndAnalyzingModel
 
 			// Get the list of valid sections from the database
 			var sectionFactory = model.SectionFactory;
+
 			var sections = await sectionFactory.GetNonParametricSections( TSD.API.Remoting.HeadCode.EC, Country.UK, SystemType.Metric, MaterialType.Steel, SectionGeometry.ISymmetric,
 				SectionType.UniversalBeam );
 
@@ -615,7 +626,7 @@ namespace CreatingAndAnalyzingModel
 			var startPointsIndices = constructionPoints[0][0].Where( c => c.Coordinates.Value.Z > 0.1 ).Select( p => p.Index ).ToList();
 			var endPointsIndices = constructionPoints[0][2].Where( c => c.Coordinates.Value.Z > 0.1 ).Select( p => p.Index ).ToList();
 
-			var steelBeams = members.Where( m => m.MemberType.Value is MemberType.Beam && m.MaterialType.Value is MaterialType.Steel );
+			var steelBeams = members.Where( m => m.Data.Value.MemberType.Value is MemberType.Beam && m.Data.Value.MaterialType.Value is MaterialType.Steel );
 
 			var beamsToChange = steelBeams.Where( ShouldBeamChange );
 

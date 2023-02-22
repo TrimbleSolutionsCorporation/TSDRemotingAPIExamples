@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClosedXML.Excel;
-using TSD.API.Remoting.Sections;
 using TSD.API.Remoting.Solver;
 
-namespace TsdApiRemotingSample
+namespace Extracting1DElementData
 {
 	public partial class ApplicationPage : Form
 	{
@@ -33,12 +33,12 @@ namespace TsdApiRemotingSample
 		{
 			_application = application;
 			InitializeComponent();
-			
+
 			// Connect to application events so we know if application is closed or the document or model change
 			_application.Disconnected += OnApplicationDisconnected;
 			_application.ModelClosed += OnApplicationModelChanged;
 			_application.ModelOpened += OnApplicationModelChanged;
-			
+
 			TopLevel = false;
 			Load += OnLoad;
 		}
@@ -69,7 +69,12 @@ namespace TsdApiRemotingSample
 		/// </summary>
 		private void OnApplicationModelChanged( object sender, TSD.API.Remoting.ModelEventArgs e )
 		{
-			BeginInvoke( new Action( async () => { await FillNameAsync(); await FillDocumentAsync(); _refreshSolverModels.PerformClick(); } ) );
+			BeginInvoke( new Action( async () =>
+			{
+				await FillNameAsync();
+				await FillDocumentAsync();
+				_refreshSolverModels.PerformClick();
+			} ) );
 		}
 
 		/// <summary>
@@ -126,19 +131,20 @@ namespace TsdApiRemotingSample
 
 			var document = await _application.GetDocumentAsync();
 
-			using var fd = new SaveFileDialog
+			using( var fd = new SaveFileDialog
+				{
+					CheckPathExists = true,
+					Filter = Filter,
+					DefaultExt = DefaultExt,
+					OverwritePrompt = true,
+				} )
 			{
-				CheckPathExists = true,
-				Filter = Filter,
-				DefaultExt = DefaultExt,
-				OverwritePrompt = true,
-			};
+				if( fd.ShowDialog() != DialogResult.OK )
+					return;
 
-			if( fd.ShowDialog() != DialogResult.OK )
-				return;
-
-			await document.SaveToAsync( fd.FileName, false );
-			await FillDocumentAsync();
+				await document.SaveToAsync( fd.FileName, false );
+				await FillDocumentAsync();
+			}
 		}
 
 		/// <summary>
@@ -148,18 +154,21 @@ namespace TsdApiRemotingSample
 		{
 			SetDocumentButtonsState( false );
 			var document = await _application.GetDocumentAsync();
-			using var fd = new SaveFileDialog
-			{
-				CheckPathExists = true,
-				Filter = Filter,
-				DefaultExt = DefaultExt,
-				OverwritePrompt = true,
-			};
-			if( fd.ShowDialog() != DialogResult.OK )
-				return;
 
-			await document.SaveToAsync( fd.FileName, true );
-			await FillDocumentAsync();
+			using( var fd = new SaveFileDialog
+				{
+					CheckPathExists = true,
+					Filter = Filter,
+					DefaultExt = DefaultExt,
+					OverwritePrompt = true,
+				} )
+			{
+				if( fd.ShowDialog() != DialogResult.OK )
+					return;
+
+				await document.SaveToAsync( fd.FileName, true );
+				await FillDocumentAsync();
+			}
 		}
 
 		/// <summary>
@@ -178,20 +187,25 @@ namespace TsdApiRemotingSample
 		private async void OnOpenDocumentStreamClick( object sender, EventArgs e )
 		{
 			SetDocumentButtonsState( false );
-			using var fd = new OpenFileDialog
-			{
-				CheckPathExists = true,
-				Filter = Filter,
-				DefaultExt = DefaultExt,
-			};
 
-			if( fd.ShowDialog() == DialogResult.OK )
+			using( var fd = new OpenFileDialog
+				{
+					CheckPathExists = true,
+					Filter = Filter,
+					DefaultExt = DefaultExt,
+				} )
 			{
-				using var stream = fd.OpenFile();
-				await _application.OpenDocumentAsync( (System.IO.FileStream) stream, false );
+
+				if( fd.ShowDialog() == DialogResult.OK )
+				{
+					using( var stream = fd.OpenFile() )
+					{
+						await _application.OpenDocumentAsync( (System.IO.FileStream) stream, false );
+					}
+				}
+
+				await FillDocumentAsync();
 			}
-
-			await FillDocumentAsync();
 		}
 
 		/// <summary>
@@ -227,6 +241,7 @@ namespace TsdApiRemotingSample
 							continue;
 
 						_solverModels.SelectedIndex = i;
+
 						break;
 					}
 				}
@@ -238,7 +253,7 @@ namespace TsdApiRemotingSample
 
 			_solverModels.Enabled = _refreshSolverModels.Enabled = _exportSolverModel.Enabled = true;
 
-			static IEnumerable<AnalysisType> ValidAnalysisTypes() => new[]
+			IEnumerable<AnalysisType> ValidAnalysisTypes() => new[]
 			{
 				AnalysisType.None,
 				AnalysisType.FirstOrderLinear,
@@ -251,11 +266,12 @@ namespace TsdApiRemotingSample
 		/// <summary>
 		/// Handles state of export button if selected solver model changes
 		/// </summary>
-		private void OnSolverModelsSelectedIndexChanged(object sender, EventArgs e)
+		private void OnSolverModelsSelectedIndexChanged( object sender, EventArgs e )
 		{
-			if (!(_solverModels.SelectedItem is IModel solverModel))
+			if( !(_solverModels.SelectedItem is IModel solverModel) )
 			{
 				_exportSolverModel.Enabled = false;
+
 				return;
 			}
 
@@ -265,74 +281,79 @@ namespace TsdApiRemotingSample
 		/// <summary>
 		/// Exports some solver model data to an excel workbook
 		/// </summary>
-		private async void OnExportSolverModelClick(object sender, EventArgs e)
+		private async void OnExportSolverModelClick( object sender, EventArgs e )
 		{
-			if (!(_solverModels.SelectedItem is IModel solverModel))
+			if( !(_solverModels.SelectedItem is IModel solverModel) )
 				return;
 
 			try
 			{
 				_exportSolverModel.Enabled = false;
 
-				using var fd = new SaveFileDialog
-				{
-					CheckPathExists = true,
-					Filter = ExcelFilter,
-					DefaultExt = ExcelExt,
-					OverwritePrompt = true,
-				};
-
-				if (fd.ShowDialog() != DialogResult.OK)
-					return;
-
-				UseWaitCursor = true;
-
-				// Get the document
-				var document = await _application.GetDocumentAsync();
-				// Get the model
-				var model = await document.GetModelAsync();
-
-				var workbook = new XLWorkbook();
-
-				// Export solver nodes
-				await ExportSolverNodes(workbook);
-				// Export solver 1D elements
-				await ExportElements1D(workbook);
-
-				// Get analysis results
-				var analysisResults = await solverModel.GetResultsAsync();
-				// Check if they exist
-				if (analysisResults != null)
-				{
-					// Get results of 3D analysis
-					var results3D = await analysisResults.GetAnalysis3DAsync();
-
-					if (results3D != null)
+				using( var fd = new SaveFileDialog
 					{
-						// Get ids of solved loading cases
-						var solvedLoading = (await results3D.GetSolvedLoadingIdsAsync()).ToList();
+						CheckPathExists = true,
+						Filter = ExcelFilter,
+						DefaultExt = ExcelExt,
+						OverwritePrompt = true,
+					} )
+				{
 
-						// And if there are any
-						if (solvedLoading.Any())
+					if( fd.ShowDialog() != DialogResult.OK )
+						return;
+
+					UseWaitCursor = true;
+
+					// Get the document
+					var document = await _application.GetDocumentAsync();
+					// Get the model
+					var model = await document.GetModelAsync();
+
+					var workbook = new XLWorkbook();
+
+					// Export solver nodes
+					await ExportSolverNodes( workbook );
+					// Export solver 1D elements
+					await ExportElements1D( workbook );
+
+					// Get analysis results
+					var analysisResults = await solverModel.GetResultsAsync();
+
+					// Check if they exist
+					if( analysisResults != null )
+					{
+						// Get results of 3D analysis
+						var results3D = await analysisResults.GetAnalysis3DAsync();
+
+						if( results3D != null )
 						{
-							// Collect loading cases (loadcases and combinations) from model
-							var loadingCases = (await model.GetLoadcasesAsync(null)).Cast<TSD.API.Remoting.Loading.ILoadingCase>().ToList();
-							loadingCases.AddRange((await model.GetCombinationsAsync(null)).Cast<TSD.API.Remoting.Loading.ILoadingCase>());
+							// Get ids of solved loading cases
+							var solvedLoading = (await results3D.GetSolvedLoadingIdsAsync()).ToList();
 
-							// Get id of first solved loading case
-							var loadingId = solvedLoading.First();
+							// And if there are any
+							if( solvedLoading.Any() )
+							{
+								// Collect loading cases (loadcases and combinations) from model
+								var loadingCases = (await model.GetLoadcasesAsync( null )).Cast<TSD.API.Remoting.Loading.ILoadingCase>().ToList();
+								loadingCases.AddRange( (await model.GetCombinationsAsync( null )).Cast<TSD.API.Remoting.Loading.ILoadingCase>() );
 
-							// Get the model loading case so we can export its name
-							var loadingCase = loadingCases.First(lc => lc.Id == loadingId);
+								// Get id of first solved loading case
+								var loadingId = solvedLoading.First();
 
-							// Export element end forces
-							await ExportElement1DEndForces(workbook, loadingCase, await analysisResults.GetAnalysis3DAsync());
+								// Get the model loading case so we can export its name
+								var loadingCase = loadingCases.First( lc => lc.Id == loadingId );
+
+								// Export element end forces
+								await ExportElement1DEndForces( workbook, loadingCase, await analysisResults.GetAnalysis3DAsync() );
+							}
 						}
 					}
-				}
 
-				workbook.SaveAs(fd.FileName);
-				workbook.Dispose();
+					workbook.SaveAs( fd.FileName );
+					workbook.Dispose();
+
+					Process.Start( new ProcessStartInfo { FileName = fd.FileName, UseShellExecute = true } );
+				}
 			}
 			finally
 			{
@@ -341,145 +362,107 @@ namespace TsdApiRemotingSample
 				_exportSolverModel.Enabled = true;
 			}
 
-			async Task ExportSolverNodes(XLWorkbook wb)
+			async Task ExportSolverNodes( XLWorkbook wb )
 			{
-				var nodes = await solverModel.GetNodesAsync(null);
+				var nodes = await solverModel.GetNodesAsync( null );
 
-				var ws = wb.Worksheets.Add("Nodes");
+				var ws = wb.Worksheets.Add( "Nodes" );
 
-				ws.Cell(1, 1).Value = "Node index";
-				ws.Cell(1, 2).Value = "X-Coordinate";
-				ws.Cell(1, 3).Value = "Y-Coordinate";
-				ws.Cell(1, 4).Value = "Z-Coordinate";
-				ws.Cell(1, 5).Value = "Fx";
-				ws.Cell(1, 6).Value = "Fy";
-				ws.Cell(1, 7).Value = "Fz";
-				ws.Cell(1, 8).Value = "Mx";
-				ws.Cell(1, 9).Value = "My";
-				ws.Cell(1, 10).Value = "Mz";
+				ws.Cell( 1, 1 ).Value = "Node index";
+				ws.Cell( 1, 2 ).Value = "X-Coordinate";
+				ws.Cell( 1, 3 ).Value = "Y-Coordinate";
+				ws.Cell( 1, 4 ).Value = "Z-Coordinate";
+				ws.Cell( 1, 5 ).Value = "Fx";
+				ws.Cell( 1, 6 ).Value = "Fy";
+				ws.Cell( 1, 7 ).Value = "Fz";
+				ws.Cell( 1, 8 ).Value = "Mx";
+				ws.Cell( 1, 9 ).Value = "My";
+				ws.Cell( 1, 10 ).Value = "Mz";
 
 				var row = 3;
 
-				foreach (var node in nodes)
+				foreach( var node in nodes )
 				{
-					ws.Cell(row, 1).Value = node.Index;
-					ws.Cell(row, 2).Value = node.Coordinates.X;
-					ws.Cell(row, 3).Value = node.Coordinates.Y;
-					ws.Cell(row, 4).Value = node.Coordinates.Z;
-					ws.Cell(row, 5).Value = node.Dof.HasFlag(DegreeOfFreedom.Fx) ? Fixed : Free;
-					ws.Cell(row, 6).Value = node.Dof.HasFlag(DegreeOfFreedom.Fy) ? Fixed : Free;
-					ws.Cell(row, 7).Value = node.Dof.HasFlag(DegreeOfFreedom.Fz) ? Fixed : Free;
-					ws.Cell(row, 8).Value = node.Dof.HasFlag(DegreeOfFreedom.Mx) ? Fixed : Free;
-					ws.Cell(row, 9).Value = node.Dof.HasFlag(DegreeOfFreedom.My) ? Fixed : Free;
-					ws.Cell(row, 10).Value = node.Dof.HasFlag(DegreeOfFreedom.Mz) ? Fixed : Free;
+					ws.Cell( row, 1 ).Value = node.Index;
+					ws.Cell( row, 2 ).Value = node.Coordinates.X;
+					ws.Cell( row, 3 ).Value = node.Coordinates.Y;
+					ws.Cell( row, 4 ).Value = node.Coordinates.Z;
+					ws.Cell( row, 5 ).Value = node.Dof.HasFlag( DegreeOfFreedom.Fx ) ? Fixed : Free;
+					ws.Cell( row, 6 ).Value = node.Dof.HasFlag( DegreeOfFreedom.Fy ) ? Fixed : Free;
+					ws.Cell( row, 7 ).Value = node.Dof.HasFlag( DegreeOfFreedom.Fz ) ? Fixed : Free;
+					ws.Cell( row, 8 ).Value = node.Dof.HasFlag( DegreeOfFreedom.Mx ) ? Fixed : Free;
+					ws.Cell( row, 9 ).Value = node.Dof.HasFlag( DegreeOfFreedom.My ) ? Fixed : Free;
+					ws.Cell( row, 10 ).Value = node.Dof.HasFlag( DegreeOfFreedom.Mz ) ? Fixed : Free;
 
 					row++;
 				}
 
-				for (var i = 1; i <= 10; i++)
-					ws.Column(i).AdjustToContents();
+				for( var i = 1; i <= 10; i++ )
+					ws.Column( i ).AdjustToContents();
 			}
 
-			async Task ExportElements1D(XLWorkbook wb)
+			async Task ExportElements1D( XLWorkbook wb )
 			{
-				var elements = await solverModel.GetElements1DAsync(null);
+				var elements = await solverModel.GetElements1DAsync( null );
 
-				var ws = wb.Worksheets.Add("Elements 1D");
-
-				ws.Cell(1, 1).Value = "Element index";
-				ws.Cell(1, 2).Value = "Start node index";
-				ws.Cell(1, 3).Value = "End node index";
-				ws.Cell(1, 4).Value = "Section name";
-				ws.Cell(1, 5).Value = "Major axis 2nd moment of area";
-				ws.Cell(1, 6).Value = "Minor axis 2nd moment of area";
-				ws.Cell(1, 7).Value = "Torsion constant";
-				ws.Cell(1, 8).Value = "Cross sectional area";
-				ws.Cell(1, 9).Value = "Material name";
-				ws.Cell(1, 10).Value = "Shear modulus";
-				ws.Cell(1, 11).Value = "Poissons ratio";
-				ws.Cell(1, 12).Value = "Thermal expansion coefficient";
-
-				var row = 3;
-
-				foreach (var element in elements)
-				{
-					var section = element.ElementSection as ISolverElementSection;
-
-					ws.Cell(row, 1).Value = element.Index;
-					ws.Cell(row, 2).Value = element.GetNodeIndex(0);
-					ws.Cell(row, 3).Value = element.GetNodeIndex(1);
-					ws.Cell(row, 4).Value = (element.ElementSection as IMemberSection)?.PhysicalSection.Value.LongName;
-					ws.Cell(row, 5).Value = section?.MajorAxisSecondMomentOfArea.Value;
-					ws.Cell(row, 6).Value = section?.MinorAxisSecondMomentOfArea.Value;
-					ws.Cell(row, 7).Value = section?.TorsionConstant.Value;
-					ws.Cell(row, 8).Value = section?.CrossSectionalArea.Value;
-					ws.Cell(row, 9).Value = element.Material.Name;
-					ws.Cell(row, 10).Value = element.Material.ShearModulus;
-					ws.Cell(row, 11).Value = element.Material.PoissonsRatio;
-					ws.Cell(row, 12).Value = element.Material.ThermalExpansionCoefficient;
-
-					row++;
-				}
-
-				for (var i = 1; i <= 12; i++)
-					ws.Column(i).AdjustToContents();
+				Exporters.Element1dExporter.Export( wb, elements.ToList() );
 			}
 
-			static async Task ExportElement1DEndForces(XLWorkbook wb, TSD.API.Remoting.Loading.ILoadingCase lc, IAnalysis3DResults results)
+			async Task ExportElement1DEndForces( XLWorkbook wb, TSD.API.Remoting.Loading.ILoadingCase lc, IAnalysis3DResults results )
 			{
-				var endForces = (await results.GetEndForcesAsync(lc.Id, TSD.API.Remoting.Loading.LoadingResultType.Base, null)).OrderBy(ef => ef.ElementIndex).ToList();
+				var endForces = (await results.GetEndForcesAsync( lc.Id, TSD.API.Remoting.Loading.LoadingResultType.Base, null )).OrderBy( ef => ef.ElementIndex ).ToList();
 
-				var ws = wb.Worksheets.Add("Element end forces");
+				var ws = wb.Worksheets.Add( "Element end forces" );
 
-				ws.Cell("A1").Value = "Loadcase: " + lc.Name;
+				ws.Cell( "A1" ).Value = "Loadcase: " + lc.Name;
 
-				ws.Cell("A3").Value = "Element index";
-				ws.Cell("B3").Value = "Start";
-				ws.Range("B3:G3").Row(1).Merge();
-				ws.Cell("H3").Value = "End";
-				ws.Range("H3:M3").Row(1).Merge();
-				ws.Cell(4, 2).Value = "Fx";
-				ws.Cell(4, 3).Value = "Fy";
-				ws.Cell(4, 4).Value = "Fz";
-				ws.Cell(4, 5).Value = "Mx";
-				ws.Cell(4, 6).Value = "My";
-				ws.Cell(4, 7).Value = "Mz";
-				ws.Cell(4, 8).Value = "Fx";
-				ws.Cell(4, 9).Value = "Fy";
-				ws.Cell(4, 10).Value = "Fz";
-				ws.Cell(4, 11).Value = "Mx";
-				ws.Cell(4, 12).Value = "My";
-				ws.Cell(4, 13).Value = "Mz";
+				ws.Cell( "A3" ).Value = "Element index";
+				ws.Cell( "B3" ).Value = "Start";
+				ws.Range( "B3:G3" ).Row( 1 ).Merge();
+				ws.Cell( "H3" ).Value = "End";
+				ws.Range( "H3:M3" ).Row( 1 ).Merge();
+				ws.Cell( 4, 2 ).Value = "Fx";
+				ws.Cell( 4, 3 ).Value = "Fy";
+				ws.Cell( 4, 4 ).Value = "Fz";
+				ws.Cell( 4, 5 ).Value = "Mx";
+				ws.Cell( 4, 6 ).Value = "My";
+				ws.Cell( 4, 7 ).Value = "Mz";
+				ws.Cell( 4, 8 ).Value = "Fx";
+				ws.Cell( 4, 9 ).Value = "Fy";
+				ws.Cell( 4, 10 ).Value = "Fz";
+				ws.Cell( 4, 11 ).Value = "Mx";
+				ws.Cell( 4, 12 ).Value = "My";
+				ws.Cell( 4, 13 ).Value = "Mz";
 
 				var row = 5;
 
-				foreach (var endForce in endForces)
+				foreach( var endForce in endForces )
 				{
-					ws.Cell(row, 1).Value = endForce.ElementIndex;
+					ws.Cell( row, 1 ).Value = endForce.ElementIndex;
 
 					var force = endForce.StartForce;
 
-					ws.Cell(row, 2).Value = force.Fx;
-					ws.Cell(row, 3).Value = force.Fy;
-					ws.Cell(row, 4).Value = force.Fz;
-					ws.Cell(row, 5).Value = force.Mx;
-					ws.Cell(row, 6).Value = force.My;
-					ws.Cell(row, 7).Value = force.Mz;
+					ws.Cell( row, 2 ).Value = force.Fx;
+					ws.Cell( row, 3 ).Value = force.Fy;
+					ws.Cell( row, 4 ).Value = force.Fz;
+					ws.Cell( row, 5 ).Value = force.Mx;
+					ws.Cell( row, 6 ).Value = force.My;
+					ws.Cell( row, 7 ).Value = force.Mz;
 
 					force = endForce.EndForce;
 
-					ws.Cell(row, 8).Value = force.Fx;
-					ws.Cell(row, 9).Value = force.Fy;
-					ws.Cell(row, 10).Value = force.Fz;
-					ws.Cell(row, 11).Value = force.Mx;
-					ws.Cell(row, 12).Value = force.My;
-					ws.Cell(row, 13).Value = force.Mz;
+					ws.Cell( row, 8 ).Value = force.Fx;
+					ws.Cell( row, 9 ).Value = force.Fy;
+					ws.Cell( row, 10 ).Value = force.Fz;
+					ws.Cell( row, 11 ).Value = force.Mx;
+					ws.Cell( row, 12 ).Value = force.My;
+					ws.Cell( row, 13 ).Value = force.Mz;
 
 					row++;
 				}
 
-				for (var i = 1; i <= 13; i++)
-					ws.Column(i).AdjustToContents();
+				for( var i = 1; i <= 13; i++ )
+					ws.Column( i ).AdjustToContents();
 			}
 		}
 
@@ -521,17 +504,22 @@ namespace TsdApiRemotingSample
 		private async Task OpenDocument( bool force )
 		{
 			SetDocumentButtonsState( false );
-			using var fd = new OpenFileDialog
+
+			using( var fd = new OpenFileDialog
+				{
+					CheckPathExists = true,
+					Filter = Filter,
+					DefaultExt = DefaultExt,
+				} )
 			{
-				CheckPathExists = true,
-				Filter = Filter,
-				DefaultExt = DefaultExt,
-			};
-			if( fd.ShowDialog() == DialogResult.OK )
-			{
-				await _application.OpenDocumentAsync( fd.FileName, !force );
+
+				if( fd.ShowDialog() == DialogResult.OK )
+				{
+					await _application.OpenDocumentAsync( fd.FileName, !force );
+				}
+
+				await FillDocumentAsync();
 			}
-			await FillDocumentAsync();
 		}
 
 		#endregion

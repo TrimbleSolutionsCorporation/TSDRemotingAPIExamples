@@ -3,19 +3,15 @@
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Tsd.Api.Remoting.Sample</RootNamespace>
-    <AssemblyName>Tsd.Api.Remoting.Sample</AssemblyName>
     <Copyright>Copyright ©  2022</Copyright>
     <Version>1.0.0.0</Version>
     <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.94.2" />
-    <PackageReference Include="Grpc.Tools" Version="2.23.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="0.22.3" />
+    <PackageReference Include="ClosedXML" Version="0.97.0" />
+    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="0.22.4" />
   </ItemGroup>
 
 </Project>
