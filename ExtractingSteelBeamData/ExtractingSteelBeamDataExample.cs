@@ -195,8 +195,8 @@ namespace ExtractingSteelBeamData
 
 				// Specify the loading value options, these will determine the type of data we are requesting. Please see the constructor documentation for additional options.
 				// We do this before looping through all the members to avoid re-instantiating the classes on every iteration
-				var momentValueOption = new LoadingValueOptions( LoadingValueType.Moment, LoadingDirection.Major );
-				var deflectionValueOption = new LoadingValueOptions( LoadingValueType.Deflection, LoadingDirection.Major );
+				var momentValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Moment, LoadingDirection.Major );
+				var deflectionValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Deflection, LoadingDirection.Major );
 
 				// Instantiate a new string builder, we will use this to help write our output .csv file
 				var stringBuilder = new StringBuilder();

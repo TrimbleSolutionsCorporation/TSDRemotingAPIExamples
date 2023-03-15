@@ -57,7 +57,7 @@ namespace CreatingAndAnalyzingModel
 
 				foreach( var level in levels.Where( l => l.Level.Value > 0.001 ) ) // ignore base level
 				{
-					var planeLoad = new ConstructionPlaneLoadParams( level, load );
+					var planeLoad = ConstructionPlaneLoadParams.AlongPlaneNormal( level, load );
 					createLoadParams.Add( planeLoad );
 				}
 
@@ -81,7 +81,7 @@ namespace CreatingAndAnalyzingModel
 					if( edgeBeamPoints.Select( p => p.Index ).ToList().Contains( span.EndMemberNode.ConstructionPointIndex.Value ) )
 					{
 						var memberSpanInfo = new MemberSpanInfo( member.Id, span.Id );
-						var memberLateralLoad = new MemberFullUniformlyDistributedLoadParams( memberSpanInfo, 10.0, MemberLoadParams.LoadDirectionLocal.Y );
+						var memberLateralLoad = MemberFullUniformlyDistributedLoadParams.Local( memberSpanInfo, 10.0, MemberLoadParams.LoadDirectionLocal.Y );
 						createLoadParams.Add( memberLateralLoad );
 					}
 				}
@@ -94,7 +94,7 @@ namespace CreatingAndAnalyzingModel
 			// Create a snow load
 			var loadcaseParams = new List<EntityParams>()
 			{
-				new LoadcaseParams(),
+				LoadcaseParams.Create(),
 			};
 
 			await model.CreateEntityAsync( loadcaseParams );
@@ -105,7 +105,7 @@ namespace CreatingAndAnalyzingModel
 			await snowLoadcase.Type.SetValueAndUpdateAsync( LoadcaseType.Snow );
 
 			var roofSlab = (await model.GetSlabsAsync()).Last();
-			var slabSnowLoad = new SlabLoadParams( roofSlab, 0.00063 );
+			var slabSnowLoad = SlabLoadParams.AlongSlabNormal( roofSlab, 0.00063 );
 			createLoadParams.Add( slabSnowLoad );
 			await snowLoadcase.CreateLoadAsync( createLoadParams );
 		}
@@ -116,7 +116,7 @@ namespace CreatingAndAnalyzingModel
 
 			var cbParams = new List<EntityParams>()
 			{
-				new CombinationParams(),
+				CombinationParams.Create(),
 			};
 
 			// Create 4 combinations
@@ -163,7 +163,7 @@ namespace CreatingAndAnalyzingModel
 			// Create an envelope of all combinations
 			var envParams = new List<EntityParams>()
 			{
-				new EnvelopeParams(),
+				EnvelopeParams.Create(),
 			};
 
 			await model.CreateEntityAsync( envParams );

@@ -56,7 +56,7 @@ namespace CreatingAndAnalyzingModel
 			// 2 levels will be created at 3m spacing
 			for( var i = 1; i < 3; i++ )
 			{
-				levelParams.Add( new HorizontalConstructionPlaneParams( i * 3000.0 ) );
+				levelParams.Add( HorizontalConstructionPlaneParams.Create( i * 3000.0 ) );
 			}
 
 			var levels = (await model.CreateEntityAsync( levelParams )).Cast<IHorizontalConstructionPlane>().ToList();
@@ -84,14 +84,13 @@ namespace CreatingAndAnalyzingModel
 			var gridParams = new List<EntityParams>();
 
 			// Creates architectural grids: 3 bays at 4m by 2 bays at 6m
-			var grid = new ParallelogramGridParams(
+			var grid = ParallelogramGridParams.Create(
 				ec.ValidIndices.Select( index => new EntityInfo { Index = index, Type = EntityType.HorizontalConstructionPlane } ),
 				new ParallelogramGridParams.DirectionExtents( 3, 4000.0, GridLineNameType.Numeric ),
-				new ParallelogramGridParams.DirectionExtents( 2, 6000.0, GridLineNameType.Alphanumeric ) )
-			{
-				Color = Color.OrangeRed,
-				Style = ConstructionHelperLineType.DashDot,
-			};
+				new ParallelogramGridParams.DirectionExtents( 2, 6000.0, GridLineNameType.Alphanumeric ) );
+
+			grid.Color = Color.OrangeRed;
+			grid.Style = ConstructionHelperLineType.DashDot;
 
 			gridParams.Add( grid );
 
@@ -114,7 +113,7 @@ namespace CreatingAndAnalyzingModel
 				{
 					for( var z = 0; z < zCount; z++ )
 					{
-						coords.Add( new ConstructionPointParams( new Point3D( x * 4000.0, y * 6000.0, z * 3000.0 ) ) );
+						coords.Add( CubicalPointParams.Create( new Point3D( x * 4000.0, y * 6000.0, z * 3000.0 ) ) );
 					}
 				}
 			}
@@ -143,10 +142,10 @@ namespace CreatingAndAnalyzingModel
 
 		private static async Task CreateStructuralWalls( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			var createParams = new List<StructuralWallParams>();
-
 			using( var attrSet1 = await model.CreateStructuralWallAttributeSetAsync() )
 			{
+				var createParams = new List<StructuralWallParams>();
+
 				// Set initial properties for a wall
 				await attrSet1.StructuralWallData.Value.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
 				await attrSet1.StructuralWallData.Value.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
@@ -165,11 +164,15 @@ namespace CreatingAndAnalyzingModel
 					constructionPoints[2][0][2],
 				};
 
-				createParams.Add( new StructuralWallParams( points, attrSet1 ) );
+				createParams.Add( StructuralWallParams.Create( points, attrSet1 ) );
+
+				await model.CreateEntityAsync( createParams );
 			}
 
 			using( var attrSet2 = await model.CreateStructuralWallAttributeSetAsync() )
 			{
+				var createParams = new List<StructuralWallParams>();
+
 				await attrSet2.StructuralWallData.Value.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
 				await attrSet2.StructuralWallData.Value.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
 				await attrSet2.StructuralWallData.Value.SupportData.Value.DegreeOfFreedom.SetValueAndUpdateAsync( DegreeOfFreedom.Fy | DegreeOfFreedom.Fz | DegreeOfFreedom.Mz );
@@ -187,7 +190,7 @@ namespace CreatingAndAnalyzingModel
 					constructionPoints[3][0][2],
 				};
 
-				createParams.Add( new StructuralWallParams( points, attrSet2 ) );
+				createParams.Add( StructuralWallParams.Create( points, attrSet2 ) );
 
 				await model.CreateEntityAsync( createParams );
 			}
@@ -220,7 +223,7 @@ namespace CreatingAndAnalyzingModel
 
 				var memberParams = new List<MemberParams>()
 				{
-					new MemberParams( points, memberAttributeSet ),
+					MemberParams.Create( points, memberAttributeSet ),
 				};
 
 				await model.CreateEntityAsync( memberParams );
@@ -237,7 +240,7 @@ namespace CreatingAndAnalyzingModel
 
 				memberParams = new List<MemberParams>()
 				{
-					new MemberParams( points, memberAttributeSet ),
+					MemberParams.Create( points, memberAttributeSet ),
 				};
 
 				await model.CreateEntityAsync( memberParams );
@@ -255,7 +258,7 @@ namespace CreatingAndAnalyzingModel
 
 				memberParams = new List<MemberParams>()
 				{
-					new MemberParams( points, memberAttributeSet ),
+					MemberParams.Create( points, memberAttributeSet ),
 				};
 
 				await model.CreateEntityAsync( memberParams );
@@ -290,7 +293,7 @@ namespace CreatingAndAnalyzingModel
 							points.Add( constructionPoints[x][y][z] );
 						}
 
-						memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+						memberParams.Add( MemberParams.Create( points, memberAttributeSet ) );
 					}
 				}
 
@@ -334,7 +337,7 @@ namespace CreatingAndAnalyzingModel
 						points.Add( constructionPoints[x][1][z] );
 					}
 
-					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+					memberParams.Add( MemberParams.Create( points, memberAttributeSet ) );
 
 					points = new List<IConstructionPoint>();
 
@@ -343,7 +346,7 @@ namespace CreatingAndAnalyzingModel
 						points.Add( constructionPoints[2][y][z] );
 					}
 
-					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+					memberParams.Add( MemberParams.Create( points, memberAttributeSet ) );
 
 					points = new List<IConstructionPoint>();
 
@@ -352,7 +355,7 @@ namespace CreatingAndAnalyzingModel
 						points.Add( constructionPoints[x][2][z] );
 					}
 
-					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+					memberParams.Add( MemberParams.Create( points, memberAttributeSet ) );
 
 					points = new List<IConstructionPoint>();
 
@@ -361,7 +364,7 @@ namespace CreatingAndAnalyzingModel
 						points.Add( constructionPoints[3][y][z] );
 					}
 
-					memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+					memberParams.Add( MemberParams.Create( points, memberAttributeSet ) );
 				}
 
 				var members = (await model.CreateEntityAsync( memberParams )).Cast<IMember>().ToList();
@@ -408,8 +411,8 @@ namespace CreatingAndAnalyzingModel
 					}
 				}
 
-				await model.CreateEntityCollector( collectableEntities ).ApplyEntityAsync();
-				await model.CreateSubEntityCollector( collectableEntitySpans ).ApplySubEntityAsync();
+				await model.CreateEntityCollector( collectableEntities ).ApplyItemsAsync();
+				await model.CreateSubEntityCollector( collectableEntitySpans ).ApplyItemsAsync();
 
 				Console.WriteLine( "Concrete beams created" );
 			}
@@ -445,7 +448,7 @@ namespace CreatingAndAnalyzingModel
 							points.Add( constructionPoints[x][y][z] );
 						}
 
-						memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+						memberParams.Add( MemberParams.Create( points, memberAttributeSet ) );
 					}
 
 					for( var x = 0; x < 2; x++ )
@@ -457,7 +460,7 @@ namespace CreatingAndAnalyzingModel
 							points.Add( constructionPoints[x][y][z] );
 						}
 
-						memberParams.Add( new MemberParams( points, memberAttributeSet ) );
+						memberParams.Add( MemberParams.Create( points, memberAttributeSet ) );
 					}
 				}
 
@@ -536,7 +539,7 @@ namespace CreatingAndAnalyzingModel
 				var structuralWalls = (await model.GetStructuralWallsAsync()).ToList();
 				padBaseEntities.AddRange( structuralWalls );
 
-				var createParams = padBaseEntities.Select( e => new IsolatedFoundationParams( e, padBaseAttrSet ) ).ToList();
+				var createParams = padBaseEntities.Select( e => IsolatedFoundationParams.Create( e, padBaseAttrSet ) ).ToList();
 
 				var entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
 
@@ -560,40 +563,40 @@ namespace CreatingAndAnalyzingModel
 					changeEntities.Add( padBase );
 				}
 
-				await model.CreateEntityCollector( changeEntities ).ApplyEntityAsync();
+				await model.CreateEntityCollector( changeEntities ).ApplyItemsAsync();
+
+				var pileTypeParameters = PileTypeParams.Create( "PileType1" );
+				pileTypeParameters.PileTypeInstallationType = PileTypeInstallationType.Driven;
+				pileTypeParameters.PileTypeShape = PileTypeShape.Circular;
+				pileTypeParameters.Dimension = 400.0;
+				pileTypeParameters.Length = 12.0 * 1.0E3;
+				pileTypeParameters.Embedment = 120.0;
+				pileTypeParameters.AxialCompressiveResistance = 500.0 * 1.0E03;
+				pileTypeParameters.AxialTensileResistance = 500.0 * 1.0E03;
+				pileTypeParameters.AxialCompressiveResistanceEcStr = 500.0 * 1.0E03;
+				pileTypeParameters.AxialTensileResistanceEcStr = 500.0 * 1.0E03;
+				pileTypeParameters.Linearity = SpringStiffness.SpringNonLinear;
+				pileTypeParameters.CompressionStiffnessVertical = 12000.0;
+				pileTypeParameters.TensionStiffnessVertical = 15000.0;
+				pileTypeParameters.CompressionLimitVertical = 1200.0 * 1.0E3;
+				pileTypeParameters.TensionLimitVertical = 1500.0 * 1.0E3;
+				pileTypeParameters.HorizontalRestraint = SpringStiffness.Fixed;
+				pileTypeParameters.LoadTransferType = PileTypeLoadTransferType.EndBearing;
+				pileTypeParameters.LateralResistance = 20.0 * 1.0E03;
+				pileTypeParameters.LateralResistanceStr = 20.0 * 1.0E03;
+				pileTypeParameters.VolumeAdjustmentPercentage = 1.0;
 
 				// A pile type must be defined in the model to allow creation of pile caps
-				var pileType1 = await model.CreatePileTypeAsync( new PileTypeParams( "PileType1" )
-				{
-					PileTypeInstallationType = PileTypeInstallationType.Driven,
-					PileTypeShape = PileTypeShape.Circular,
-					Dimension = 400.0,
-					Length = 12.0 * 1.0E3,
-					Embedment = 120.0,
-					AxialCompressiveResistance = 500.0 * 1.0E03,
-					AxialTensileResistance = 500.0 * 1.0E03,
-					AxialCompressiveResistanceEcStr = 500.0 * 1.0E03,
-					AxialTensileResistanceEcStr = 500.0 * 1.0E03,
-					Linearity = SpringStiffness.SpringNonLinear,
-					CompressionStiffnessVertical = 12000.0,
-					TensionStiffnessVertical = 15000.0,
-					CompressionLimitVertical = 1200.0 * 1.0E3,
-					TensionLimitVertical = 1500.0 * 1.0E3,
-					HorizontalRestraint = SpringStiffness.Fixed,
-					LoadTransferType = PileTypeLoadTransferType.EndBearing,
-					LateralResistance = 20.0 * 1.0E03,
-					LateralResistanceStr = 20.0 * 1.0E03,
-					VolumeAdjustmentPercentage = 1.0,
-				} );
+				var pileType1 = await model.CreatePileTypeAsync( pileTypeParameters );
 
-				using( var pileCapAttrSet = await model.CreatePileCapAttributeSetAsync( new PileCapAttributeSetParams( pileType1 ) ) )
+				using( var pileCapAttrSet = await model.CreatePileCapAttributeSetAsync( PileCapAttributeSetParams.Create( pileType1 ) ) )
 				{
 					var pileCapEntities = new List<IEntity>();
 
 					// Pile caps will be added beneath all steel columns
 					pileCapEntities.AddRange( columns.Where( c => c.Data.Value.MaterialType.Value == MaterialType.Steel ) );
 
-					createParams = pileCapEntities.Select( e => new IsolatedFoundationParams( e, pileCapAttrSet ) ).ToList();
+					createParams = pileCapEntities.Select( e => IsolatedFoundationParams.Create( e, pileCapAttrSet ) ).ToList();
 
 					entities = (await model.CreateEntityAsync( createParams )).Cast<IIsolatedFoundation>().ToList();
 
@@ -616,7 +619,7 @@ namespace CreatingAndAnalyzingModel
 			// Get the list of valid sections from the database
 			var sectionFactory = model.SectionFactory;
 
-			var sections = await sectionFactory.GetNonParametricSections( TSD.API.Remoting.HeadCode.EC, Country.UK, SystemType.Metric, MaterialType.Steel, SectionGeometry.ISymmetric,
+			var sections = await sectionFactory.GetNonParametricSectionsAsync( HeadCode.Ec, Country.Uk, SystemType.Metric, MaterialType.Steel, SectionGeometry.ISymmetric,
 				SectionType.UniversalBeam );
 
 			// Select the new section size from the list
@@ -650,7 +653,7 @@ namespace CreatingAndAnalyzingModel
 
 			// Create the new section
 			var sectionFactory = model.SectionFactory;
-			var newSection = await sectionFactory.GetParametricRectangularSection( MaterialType.Concrete, 500.0, 500.0 );
+			var newSection = await sectionFactory.GetParametricRectangularSectionAsync( MaterialType.Concrete, 500.0, 500.0 );
 
 			// Identify the column at grid intersection 4C
 			var startPoint = constructionPoints[3][2][0];

@@ -54,8 +54,8 @@ namespace CreatingAndAnalyzingModel
 		private static async Task GetBeamDeflectionResults( TSD.API.Remoting.Structure.IModel model, AnalysisType requestedAnalysisType, IEnumerable<IMember> members, StringBuilder stringBuilder )
 		{
 			// Specify the loading value options, these will determine the type of data we are requesting. Please see the constructor documentation for additional options.
-			var momentValueOption = new LoadingValueOptions( LoadingValueType.Moment, LoadingDirection.Major );
-			var deflectionValueOption = new LoadingValueOptions( LoadingValueType.Deflection, LoadingDirection.Major );
+			var momentValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Moment, LoadingDirection.Major );
+			var deflectionValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Deflection, LoadingDirection.Major );
 
 			var combinations = await model.GetCombinationsAsync();
 
@@ -214,7 +214,7 @@ namespace CreatingAndAnalyzingModel
 							continue;
 						}
 
-						var majorMomentValueOption = new LoadingValueOptions( LoadingValueType.Moment, LoadingDirection.Major );
+						var majorMomentValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Moment, LoadingDirection.Major );
 
 						// Get the interest points at which the maximum major moment occurs
 						var maximumMajorMomentPointsOfInterest = (await memberLoading.GetPointsOfInterest( majorMomentValueOption, PointOfInterestType.Maximum )).ToList();
@@ -237,7 +237,7 @@ namespace CreatingAndAnalyzingModel
 							}
 						}
 
-						var minorMomentValueOption = new LoadingValueOptions( LoadingValueType.Moment, LoadingDirection.Minor );
+						var minorMomentValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Moment, LoadingDirection.Minor );
 
 						// Get the interest points at which the maximum minor moment occurs
 						var maximumMinorMomentPointsOfInterest = (await memberLoading.GetPointsOfInterest( minorMomentValueOption, PointOfInterestType.Maximum )).ToList();
@@ -260,7 +260,7 @@ namespace CreatingAndAnalyzingModel
 							}
 						}
 
-						var axialForceValueOption = new LoadingValueOptions( LoadingValueType.Force, LoadingDirection.Axial );
+						var axialForceValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Force, LoadingDirection.Axial );
 
 						// Get the interest points at which the maximum axial force occurs
 						var maximumAxialForcePointsOfInterest = (await memberLoading.GetPointsOfInterest( axialForceValueOption, PointOfInterestType.Maximum )).ToList();
@@ -302,11 +302,11 @@ namespace CreatingAndAnalyzingModel
 		private static async Task GetMidSpanResults( TSD.API.Remoting.Structure.IModel model, AnalysisType requestedAnalysisType, IEnumerable<IMember> members, StringBuilder stringBuilder )
 		{
 			// Specify the loading value options, these will determine the type of data we are requesting. Please see the constructor documentation for additional options.
-			var momentValueOption = new LoadingValueOptions( LoadingValueType.Moment, LoadingDirection.Major );
-			var shearValueOption = new LoadingValueOptions( LoadingValueType.Force, LoadingDirection.Major );
-			var axialValueOption = new LoadingValueOptions( LoadingValueType.Force, LoadingDirection.Axial );
-			var torsionValueOption = new LoadingValueOptions( LoadingValueType.Moment, LoadingDirection.Axial );
-			var deflectionValueOption = new LoadingValueOptions( LoadingValueType.Deflection, LoadingDirection.Major );
+			var momentValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Moment, LoadingDirection.Major );
+			var shearValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Force, LoadingDirection.Major );
+			var axialValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Force, LoadingDirection.Axial );
+			var torsionValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Moment, LoadingDirection.Axial );
+			var deflectionValueOption = LoadingValueOptions.StaticValue( LoadingValueType.Deflection, LoadingDirection.Major );
 
 			var combinations = await model.GetCombinationsAsync();
 
