@@ -13,4 +13,4 @@ The example is designed to work with an empty model set to an EC regional code, 
 
 ## Compatibility
 
-These examples use TeklaStructuralDesigner.RemotingAPI version 23.0.0 and are compatible with Tekla Structural Designer 2023.
+These examples use TeklaStructuralDesigner.RemotingAPI version 23.1.0 and are compatible with Tekla Structural Designer 2023 Service Pack 1.

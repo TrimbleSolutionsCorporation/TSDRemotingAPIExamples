@@ -2,6 +2,25 @@
 
 This document contains the notes for individual releases of the _TeklaStructuralDesigner.RemotingAPI_ NuGet package.
 
+## Version 23.1.0
+
+* The ability to run the _"Analyze All"_ and _"Design All"_ commands has been added.
+* Westok web openings have been exposed via API.
+  * The following properties of `IWebOpening` interface can now be accessed via the `Stiffener` property and were therefore made obsolete:
+    * `Stiffening`
+    * `StiffenerDepth`
+    * `StiffenerThickness`
+    * `StiffenerLength`
+    * `EdgeToStiffenerCenter`
+  * All these obsolete properties will be removed in version 25.0.0.
+* The stiffeners of web openings can be now added (resp. removed) via dedicated `Add` and `Remove` methods.
+  * Property `IsStiffened` can therefore no longer have its value set and will be changed to `IReadOnlyProperty` in version 25.0.0.
+* The property `FilletWeldLegLength` of simple web opening stiffener has been exposed.
+* The following properties related to splices have been added to `ISteelColumnStackData`
+  * `HasSplice`
+  * `SpliceOffset`
+* The settings related to export of continuous objects have been exposed via API (under `IModelSettings.BimSettings`).
+
 ## Version 23.0.0
 
 This is the first public version of the NuGet package.
