@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extracting1DElementData", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreatingAndAnalyzingModel", "CreatingAndAnalyzingModel\CreatingAndAnalyzingModel.csproj", "{3EC3F9B8-94DF-4BD5-8074-7B39A6834DA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtractingResultsTableItem", "ExtractingResultsTableItem\ExtractingResultsTableItem.csproj", "{36DA71E5-9802-4A27-91C7-0B484DB33790}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{3EC3F9B8-94DF-4BD5-8074-7B39A6834DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EC3F9B8-94DF-4BD5-8074-7B39A6834DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EC3F9B8-94DF-4BD5-8074-7B39A6834DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36DA71E5-9802-4A27-91C7-0B484DB33790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36DA71E5-9802-4A27-91C7-0B484DB33790}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36DA71E5-9802-4A27-91C7-0B484DB33790}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36DA71E5-9802-4A27-91C7-0B484DB33790}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
