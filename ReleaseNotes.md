@@ -2,6 +2,14 @@
 
 This document contains the notes for individual releases of the _TeklaStructuralDesigner.RemotingAPI_ NuGet package.
 
+## Version 23.2.0
+
+* There is now a new way to peek at running instances of Tekla Structural Designer at the local machine instead of having to connect to them right away (`ApplicationFactory.GetRunningApplicationInfosAsync`). The provided `IApplicationInfo` then can be used to connect to the associated instance of Tekla Structural Designer using a new overload of method (`ApplicationFactory.ConnectToRunningApplicationAsync`).
+* The ability to access calculations of an object has been added (see `IHaveCalculations`).
+* A bug causing crash when accessing `DepthToThicknessRatio`, `BucklingParameter` and/or `TorsionalIndex` properties of `IPlatedISection` has been fixed. The properties now return `double.NaN` instead and a new interface `IPlatedISectionV2` has been added that has these properties as nullable (with `null` value instead of `double.NaN`). The old interface (`IPlatedISection`) has been made obsolete.
+* The ability to query units and convert values has been added (`IUnitConverter` in `IApplication`).
+* The ability to access current selection has been added (see `ISelectionItem`).
+
 ## Version 23.1.0
 
 * The ability to run the _"Analyze All"_ and _"Design All"_ commands has been added.
