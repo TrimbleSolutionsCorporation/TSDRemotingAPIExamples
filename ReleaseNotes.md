@@ -2,6 +2,14 @@
 
 This document contains the notes for individual releases of the _TeklaStructuralDesigner.RemotingAPI_ NuGet package.
 
+## Version 24.0.0
+
+* A dedicated combination class for staged construction has been added.
+* A dedicated set of staged construction analysis types has been added.
+* The ability to access analysis types used in element design has been added (see `GetAnalysisTypesForElementDesignAsync` in `Structure.IModel`).
+* A new masonry material type has been added (see `IMasonry`).
+  * Unfortunately, this _breaks the backwards compatibility_ so in order to work with TSD of version 24.0 and later, the API of at least version 24.0 needs to be used.
+
 ## Version 23.3.0
 
 * The ability to access connections via `Structure.IModel` interface has been added.
