@@ -2,6 +2,18 @@
 
 This document contains the notes for individual releases of the _TeklaStructuralDesigner.RemotingAPI_ NuGet package.
 
+## Version 23.3.0
+
+* The ability to access connections via `Structure.IModel` interface has been added.
+* The ability to access floor analysis models via `Structure.IModel` interface has been added.
+* The floor analysis results (vibration modes and mode shapes by node) can be now accessed via solver model of floor analysis model (`GetVibrationModesAsync` and `GetModeShapesByNodeAsync` respectively).
+* The ability to access base plate data via `IBasePlate` interface has been added.
+* The property `GlobalRotationAngle` has been added to `IMemberSpan`.
+* The property `CombinationSpeciality` has been added to `ICombination`.
+* There is now an option to close an instance of Tekla Structural Designer application by calling `IApplication.StopAsync()`. This is only allowed for instances that were started via the API and the stop action can only be done from the client that started the instance.
+* A bug preventing access to concrete sections with circular holes has been fixed.
+* A bug preventing access to user-defined attributes has been fixed.
+
 ## Version 23.2.0
 
 * There is now a new way to peek at running instances of Tekla Structural Designer at the local machine instead of having to connect to them right away (`ApplicationFactory.GetRunningApplicationInfosAsync`). The provided `IApplicationInfo` then can be used to connect to the associated instance of Tekla Structural Designer using a new overload of method (`ApplicationFactory.ConnectToRunningApplicationAsync`).
