@@ -2,6 +2,10 @@
 
 This document contains the notes for individual releases of the _TeklaStructuralDesigner.RemotingAPI_ NuGet package.
 
+## Version 23.4.0
+
+* A bug preventing connection to the API when using trial version of TSD has been fixed.
+
 ## Version 23.3.0
 
 * The ability to access connections via `Structure.IModel` interface has been added.
