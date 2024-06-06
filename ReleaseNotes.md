@@ -2,6 +2,14 @@
 
 This document contains the notes for individual releases of the _TeklaStructuralDesigner.RemotingAPI_ NuGet package.
 
+## Version 24.1.0
+
+* A new overload for `IModel.CreateMemberAttributeSetAsync` method has been added that allows users to specify the type of created member.
+  * This change also allows users to set the section of created members.
+  * The original overload is therefore redundant, has been marked obsolete and will be removed in version 26.0.0.
+* The property `IsWindward` has been added to `ISnowLoadDataDrift`.
+* The property `DistanceToRidge` has been added to `ISnowLoadDataRainOnSnow`.
+
 ## Version 24.0.0
 
 * A dedicated combination class for staged construction has been added.
@@ -9,6 +17,10 @@ This document contains the notes for individual releases of the _TeklaStructural
 * The ability to access analysis types used in element design has been added (see `GetAnalysisTypesForElementDesignAsync` in `Structure.IModel`).
 * A new masonry material type has been added (see `IMasonry`).
   * Unfortunately, this _breaks the backwards compatibility_ so in order to work with TSD of version 24.0 and later, the API of at least version 24.0 needs to be used.
+
+## Version 23.4.0
+
+* A bug preventing connection to the API when using trial version of TSD has been fixed.
 
 ## Version 23.3.0
 
