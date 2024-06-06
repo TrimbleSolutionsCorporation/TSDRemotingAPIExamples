@@ -200,12 +200,9 @@ namespace CreatingAndAnalyzingModel
 
 		private static async Task CreateConcreteColumns( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
+			using( var memberAttributeSet = await model.CreateConcreteColumnAttributeSetAsync() )
 			{
 				// Set initial properties for the columns
-				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Column );
-				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
-				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
 				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
 				await memberAttributeSet.AutoDesignOption.SetValueAndUpdateAsync( AutoDesignOption.StartingFromMinima );
 				await memberAttributeSet.RotationOption.SetValueAndUpdateAsync( RotationOption.Degrees0 );
@@ -269,13 +266,9 @@ namespace CreatingAndAnalyzingModel
 
 		private static async Task CreateSteelColumns( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
+			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync( MemberAttributeSetParams.Create( MemberType.Column, MaterialType.Steel, MemberFabrication.Rolled ) ) )
 			{
 				// Set initial properties for the columns
-				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Column );
-				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Steel );
-				await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.SteelColumn );
-				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Rolled );
 				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
 				await memberAttributeSet.RotationOption.SetValueAndUpdateAsync( RotationOption.Degrees0 );
 				await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "S355" ) );
@@ -305,13 +298,9 @@ namespace CreatingAndAnalyzingModel
 
 		private static async Task CreateConcreteBeams( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
+			using( var memberAttributeSet = await model.CreateConcreteBeamAttributeSetAsync() )
 			{
 				// Set initial properties for the beams
-				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Beam );
-				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Concrete );
-				await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.ConcreteBeam );
-				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Reinforced );
 				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
 				await memberAttributeSet.AutoDesignOption.SetValueAndUpdateAsync( AutoDesignOption.StartingFromMinima );
 				await memberAttributeSet.GravityOnly.SetValueAndUpdateAsync( true );
@@ -420,13 +409,9 @@ namespace CreatingAndAnalyzingModel
 
 		private static async Task CreateSteelBeams( TSD.API.Remoting.Structure.IModel model, IReadOnlyList<List<List<IConstructionPoint>>> constructionPoints )
 		{
-			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync() )
+			using( var memberAttributeSet = await model.CreateMemberAttributeSetAsync( MemberAttributeSetParams.Create( MemberType.Beam, MaterialType.Steel, MemberFabrication.Rolled ) ) )
 			{
 				// Set initial properties for the beams
-				await memberAttributeSet.MemberType.SetValueAndUpdateAsync( MemberType.Beam );
-				await memberAttributeSet.MaterialType.SetValueAndUpdateAsync( MaterialType.Steel );
-				await memberAttributeSet.Construction.SetValueAndUpdateAsync( MemberConstruction.SteelBeam );
-				await memberAttributeSet.Fabrication.SetValueAndUpdateAsync( MemberFabrication.Rolled );
 				await memberAttributeSet.AutoDesign.SetValueAndUpdateAsync( true );
 				await memberAttributeSet.GravityOnly.SetValueAndUpdateAsync( true );
 				await memberAttributeSet.Material.SetValueAndUpdateAsync( memberAttributeSet.Material.ValidValues.FirstOrDefault( item => item.Name == "S355" ) );
