@@ -2,6 +2,11 @@
 
 This document contains the notes for individual releases of the _TeklaStructuralDesigner.RemotingAPI_ NuGet package.
 
+## Version 24.2.0
+
+* The property `MinorAxisElasticSectionModulus` of `IColdRolledSectionBase` has been made optional. It will return `double.NaN` in case it is not available and its type will change to `double?` in version 26.0.0.
+* A new value `Mexico` has been added to the `Country` enumeration.
+
 ## Version 24.1.0
 
 * A new overload for `IModel.CreateMemberAttributeSetAsync` method has been added that allows users to specify the type of created member.

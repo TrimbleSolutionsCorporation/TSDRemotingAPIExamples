@@ -17,4 +17,4 @@ This project shows how to use TSD Remoting API from a command line application t
 
 ## Compatibility
 
-These examples use TeklaStructuralDesigner.RemotingAPI version 24.1.0 and are compatible with Tekla Structural Designer 2024 Service Pack 1.
+These examples use TeklaStructuralDesigner.RemotingAPI version 24.2.0 and are compatible with Tekla Structural Designer 2024 Service Pack 2.
