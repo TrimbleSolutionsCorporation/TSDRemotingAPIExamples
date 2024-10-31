@@ -1,0 +1,65 @@
+﻿<UserControl
+    x:Class="ReactingToSelection.Views.BasePlateConcreteData"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:ReactingToSelection.ViewModels"
+    d:DataContext="{d:DesignInstance vm:BasePlateConcreteData}"
+    mc:Ignorable="d">
+    <GroupBox Header="Properties">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label
+                Grid.Row="0"
+                Grid.Column="0"
+                Content="Width" />
+            <Label
+                Grid.Row="0"
+                Grid.Column="1"
+                Content="{Binding Width}" />
+            <Label
+                Grid.Row="1"
+                Grid.Column="0"
+                Content="Length" />
+            <Label
+                Grid.Row="1"
+                Grid.Column="1"
+                Content="{Binding Length}" />
+            <Label
+                Grid.Row="2"
+                Grid.Column="0"
+                Content="Depth" />
+            <Label
+                Grid.Row="2"
+                Grid.Column="1"
+                Content="{Binding Depth}" />
+            <Label
+                Grid.Row="3"
+                Grid.Column="0"
+                Content="Material" />
+            <Label
+                Grid.Row="3"
+                Grid.Column="1"
+                Content="{Binding Material}" />
+            <Label
+                Grid.Row="4"
+                Grid.Column="0"
+                Content="Grout space" />
+            <Label
+                Grid.Row="4"
+                Grid.Column="1"
+                Content="{Binding GroutSpace}" />
+        </Grid>
+    </GroupBox>
+</UserControl>

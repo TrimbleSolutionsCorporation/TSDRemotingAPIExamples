@@ -1,0 +1,27 @@
+﻿<ContentControl
+    x:Class="ReactingToSelection.Views.BasePlateBoltLayout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="clr-namespace:ReactingToSelection.Views"
+    xmlns:vm="clr-namespace:ReactingToSelection.ViewModels"
+    mc:Ignorable="d">
+    <ContentControl.Resources>
+        <DataTemplate DataType="{x:Type vm:BasePlateFourBoltLayout}">
+            <GroupBox Header="Four Bolt">
+                <views:BasePlateFourBoltLayout DataContext="{Binding}" />
+            </GroupBox>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BasePlateSymmetricBoltLayout}">
+            <GroupBox Header="Symmetric">
+                <views:BasePlateSymmetricBoltLayout DataContext="{Binding}" />
+            </GroupBox>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BasePlateAsymmetricBoltLayout}">
+            <GroupBox Header="Asymmetric">
+                <views:BasePlateAsymmetricBoltLayout DataContext="{Binding}" />
+            </GroupBox>
+        </DataTemplate>
+    </ContentControl.Resources>
+</ContentControl>
