@@ -14,6 +14,8 @@ The example is designed to work with an empty model set to an EC regional code, 
 This project shows how to use TSD Remoting API from a command line application to find values from the results tables for a given member by inputting text that will be used to search for lines in the results tables where that text appears.
 * **ExtractingModelData** 
 This project shows how to use TSD Remoting API from a command line application to export data for members, walls, slabs and connections to a .csv file.
+* **ReactingToSelection**
+This project shows how to use TSD Remoting API from a WPF application that reacts to seletion in TSD displaying details about selected connections.
 
 ## Compatibility
 
