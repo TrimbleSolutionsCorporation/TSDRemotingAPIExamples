@@ -16,7 +16,9 @@ This project shows how to use TSD Remoting API from a command line application t
 This project shows how to use TSD Remoting API from a command line application to export data for members, walls, slabs and connections to a .csv file.
 * **ReactingToSelection**
 This project shows how to use TSD Remoting API from a WPF application that reacts to seletion in TSD displaying details about selected connections.
+* **PythonNetExperiment**
+This experimental project shows how to use TSD Remoting API from a Python application. It uses PythonNet to access the API.
 
 ## Compatibility
 
-These examples use TeklaStructuralDesigner.RemotingAPI version 24.2.0 and are compatible with Tekla Structural Designer 2024 Service Pack 2.
+These examples use TeklaStructuralDesigner.RemotingAPI version 24.3.0 and are compatible with Tekla Structural Designer 2024 Service Pack 3.
