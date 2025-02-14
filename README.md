@@ -21,4 +21,4 @@ This experimental project shows how to use TSD Remoting API from a Python applic
 
 ## Compatibility
 
-These examples use TeklaStructuralDesigner.RemotingAPI version 24.3.0 and are compatible with Tekla Structural Designer 2024 Service Pack 3.
+These examples use TeklaStructuralDesigner.RemotingAPI version 24.3.0 and are compatible with Tekla Structural Designer 2024 Service Pack 4.
