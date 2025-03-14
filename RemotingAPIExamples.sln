@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtractingModelData", "Extr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactingToSelection", "ReactingToSelection\ReactingToSelection.csproj", "{3EA249F1-12C3-45EB-813F-C18DFBEECE6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExportingFireCheckDataToUDA", "ExportingFireCheckDataToUDA\ExportingFireCheckDataToUDA.csproj", "{B8D97D9C-45A5-4ABE-ABAC-B36320E48DCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{3EA249F1-12C3-45EB-813F-C18DFBEECE6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EA249F1-12C3-45EB-813F-C18DFBEECE6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EA249F1-12C3-45EB-813F-C18DFBEECE6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8D97D9C-45A5-4ABE-ABAC-B36320E48DCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8D97D9C-45A5-4ABE-ABAC-B36320E48DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8D97D9C-45A5-4ABE-ABAC-B36320E48DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8D97D9C-45A5-4ABE-ABAC-B36320E48DCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
