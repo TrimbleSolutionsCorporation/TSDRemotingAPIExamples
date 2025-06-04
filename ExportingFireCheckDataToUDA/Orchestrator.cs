@@ -35,7 +35,6 @@ internal static class Orchestrator
 
 		var fireCheckData = spans
 			.SelectMany( tuple => tuple.Spans.Select( s => GetFireCheckData( tuple.Member, s ) ) )
-			.OfType<FireCheckData>()
 			.ToList();
 
 		Console.WriteLine( $"Found {fireCheckData.Count} eligible member spans" );
@@ -54,13 +53,7 @@ internal static class Orchestrator
 		if( member.Data.GetValueOrDefault() is not { } memberData )
 			return false;
 
-		if( memberData.MaterialType.GetValueOrDefault() is not MaterialType.Steel )
-			return false;
-
-		if( memberData.ElementType.GetValueOrDefault() is not TSD.API.Remoting.Solver.ElementType.Beam )
-			return false;
-
-		if( memberData.Construction.GetValueOrDefault() is MemberConstruction.CompositeBeam or MemberConstruction.CompositeColumn )
+		if( memberData.MaterialType.GetValueOrDefault() is not MaterialType.Steel and not MaterialType.ColdFormed )
 			return false;
 
 		return true;
@@ -72,20 +65,16 @@ internal static class Orchestrator
 	/// <param name="member">The owning member of the span to check</param>
 	/// <param name="memberSpan">The member span to check</param>
 	/// <returns>Returns a fire check data associated with the given member span (or <see langword="null"/> in case the member span is not eligible)</returns>
-	private static FireCheckData? GetFireCheckData( IMember member, IMemberSpan memberSpan )
+	private static FireCheckData GetFireCheckData( IMember member, IMemberSpan memberSpan )
 	{
-		if( memberSpan.FireCheckData.GetValueOrDefault() is not { } fireCheckData )
-			return null;
-
-		if( fireCheckData.ApplyFireAmbientTemperatureCheck.GetValueOrDefault() is false )
-			return null;
+		var fireCheckData = memberSpan.FireCheckData.GetValueOrDefault();
 
 		return new FireCheckData
 		{
 			Member = member,
 			MemberSpan = memberSpan,
-			Exposure = fireCheckData.ExposedSides.IsApplicable ? fireCheckData.ExposedSides.Value : null,
-			NominalFireExposure = fireCheckData.TimeOfFireExposure.IsApplicable ? fireCheckData.TimeOfFireExposure.Value : null,
+			Exposure = fireCheckData?.ExposedSides.IsApplicable is true ? fireCheckData.ExposedSides.Value : null,
+			NominalFireExposure = fireCheckData?.TimeOfFireExposure.IsApplicable is true ? fireCheckData.TimeOfFireExposure.Value : null,
 		};
 	}
 

@@ -19,7 +19,7 @@ internal readonly record struct FireCheckData(
 	ExposedSides? Exposure,
 	TimeOfFireExposure? NominalFireExposure,
 	double? CriticalTemperature,
-	double AmbientUtilizationRatio,
-	double LoadReductionFactor,
-	int CombinationReferenceIndex
+	double? AmbientUtilizationRatio,
+	double? LoadReductionFactor,
+	int? CombinationReferenceIndex
 );

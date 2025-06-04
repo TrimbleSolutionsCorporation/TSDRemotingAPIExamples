@@ -96,32 +96,18 @@ internal static class DataApplier
 
 				IHaveUserDefinedAttributes? udaOwner = fireCheckData.MemberSpan;
 
-				if( fireCheckData.Exposure is { } exposure )
-				{
-					yield return udaOwner.CreateSetAttributeParams( exposureUda, exposure.ToString() );
-				}
+				yield return udaOwner.CreateSetAttributeParams( exposureUda, FormatEnum( fireCheckData.Exposure ) );
+				yield return udaOwner.CreateSetAttributeParams( nominalFireExposureUda, FormatEnum( fireCheckData.NominalFireExposure ) );
+				yield return udaOwner.CreateSetAttributeParams( ambientUtilizationRatioUda, FormatDouble( fireCheckData.AmbientUtilizationRatio ) );
+				yield return udaOwner.CreateSetAttributeParams( loadReductionFactorUda, FormatDouble( fireCheckData.LoadReductionFactor ) );
+				yield return udaOwner.CreateSetAttributeParams( criticalTemperatureUda, FormatDouble( fireCheckData.CriticalTemperature ) );
 
-				if( fireCheckData.NominalFireExposure is { } nominalFireExposure )
-				{
-					yield return udaOwner.CreateSetAttributeParams( nominalFireExposureUda, nominalFireExposure.ToString() );
-				}
-
-				yield return udaOwner.CreateSetAttributeParams( ambientUtilizationRatioUda, Format( fireCheckData.AmbientUtilizationRatio ) );
-				yield return udaOwner.CreateSetAttributeParams( loadReductionFactorUda, Format( fireCheckData.LoadReductionFactor ) );
-
-				if( fireCheckData.CriticalTemperature is { } criticalTemperature )
-				{
-					yield return udaOwner.CreateSetAttributeParams( criticalTemperatureUda, Format( criticalTemperature ) );
-				}
-
-				if( GetDominantImposedLoadcase( fireCheckData.CombinationReferenceIndex ) is { } loadcase )
-				{
-					yield return udaOwner.CreateSetAttributeParams( imposedLoadingCategoryUda, loadcase.Ec3LoadingCategory.GetValueOrDefault().ToString() );
-				}
+				yield return udaOwner.CreateSetAttributeParams( imposedLoadingCategoryUda,
+					FormatEnum( GetDominantImposedLoadcase( fireCheckData.CombinationReferenceIndex )?.Ec3LoadingCategory.GetValueOrDefault() ) );
 			}
 		}
 
-		ILoadcase? GetDominantImposedLoadcase( int combinationReferenceIndex )
+		ILoadcase? GetDominantImposedLoadcase( int? combinationReferenceIndex )
 		{
 			if( combinations.FirstOrDefault( c => c.ReferenceIndex == combinationReferenceIndex ) is not { } combination )
 				return null;
@@ -132,7 +118,11 @@ internal static class DataApplier
 			return dominantImposedLoadcase;
 		}
 
-		static string Format( double value ) => string.Format( CultureInfo.InvariantCulture, "{0:F3}", value );
+		static string FormatEnum<T>( T? value )
+			where T : struct, Enum
+			=> value?.ToString() ?? string.Empty;
+
+		static string FormatDouble( double? value ) => value is not null ? string.Format( CultureInfo.InvariantCulture, "{0:F3}", value ) : string.Empty;
 	}
 
 	/// <summary>

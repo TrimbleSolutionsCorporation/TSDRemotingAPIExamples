@@ -42,9 +42,6 @@ internal static class DataCollector
 	/// <param name="dataCollection">The collection of empty fire check data to populate with data</param>
 	public static async Task<IReadOnlyList<FireCheckData>> PopulateFireCheckDataAsync( IReadOnlyCollection<FireCheckData> dataCollection )
 	{
-		var memberSpanCount = dataCollection.Count;
-		var decimalPlaces = (int) Math.Ceiling( Math.Log10( memberSpanCount ) );
-
 		Console.WriteLine( "Collecting fire check data" );
 
 		var dataList = new System.Collections.Concurrent.ConcurrentBag<FireCheckData>();
@@ -55,6 +52,9 @@ internal static class DataCollector
 
 		var processedTasks = 0;
 		var @lock = new object();
+
+		var groupCount = groupedDataCollection.Count;
+		var decimalPlaces = (int) Math.Ceiling( Math.Log10( groupCount ) );
 
 		await Task.Run( () => Parallel.ForEachAsync( groupedDataCollection, async ( group, cancellationToken ) =>
 		{
@@ -71,7 +71,7 @@ internal static class DataCollector
 
 			lock( @lock )
 			{
-				Console.WriteLine( $"{ProgressIndicator.GetText( decimalPlaces, processedTasks, memberSpanCount )} {message}" );
+				Console.WriteLine( $"{ProgressIndicator.GetText( decimalPlaces, processedTasks, groupCount )} {message}" );
 
 				processedTasks++;
 			}
@@ -88,22 +88,20 @@ internal static class DataCollector
 	/// <param name="cancellationToken">The cancellation token</param>
 	private static async Task<IReadOnlyCollection<FireCheckData>> PopulateFireCheckDataAsync( IMember member, IReadOnlyCollection<FireCheckData> dataCollection, CancellationToken cancellationToken )
 	{
+		if( dataCollection.All( d => !d.MemberSpan.FireCheckData.IsApplicable ) )
+			return dataCollection;
+
 		var rootNode = await member.GetCalculationsAsync( CheckResultType.Static, cancellationToken: cancellationToken );
 
 		if( GetSummaryTable( rootNode ) is not { } summaryTable )
-			return [];
+			return dataCollection;
 
 		if( summaryTable.GetLine( FireAmbientTemperatureLineName ) is not { } fireAmbientTemperatureLine )
-			return [];
+			return dataCollection;
 
-		if( GetCombinationReferenceIndex( fireAmbientTemperatureLine ) is not { } combinationReferenceIndex )
-			return [];
-
-		if( GetAmbientUtilizationRatio( fireAmbientTemperatureLine ) is not { } ambientUtilizationRatio )
-			return [];
-
-		if( GetLoadReductionFactor( member, fireAmbientTemperatureLine.Table ) is not { } loadReductionFactor )
-			return [];
+		var combinationReferenceIndex = GetCombinationReferenceIndex( fireAmbientTemperatureLine );
+		var ambientUtilizationRatio = GetAmbientUtilizationRatio( fireAmbientTemperatureLine );
+		var loadReductionFactor = GetLoadReductionFactor( member, fireAmbientTemperatureLine.Table );
 
 		var populatedDataList = new List<FireCheckData>();
 
