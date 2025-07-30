@@ -180,18 +180,19 @@ internal static class DataCollector
 
 		return member.Data.GetValueOrDefault()?.Construction.GetValueOrDefault() switch
 		{
-			MemberConstruction.SteelBeam => GetSteelBeamValue(),
-			MemberConstruction.SteelColumn => GetSteelColumnValue(),
+			MemberConstruction.SteelBeam
+				or MemberConstruction.SteelBrace => GetDirectValue(),
+			MemberConstruction.SteelColumn => GetNestedValue(),
 			_ => null
 		};
 
-		double? GetSteelBeamValue() => table.Lines
+		double? GetDirectValue() => table.Lines
 			.Select( l => l.Table )
 			.OfType<IReportTable>()
 			.Select( t => t.GetValue( LoadReductionFactorItemName ) )
 			.FirstOrDefault( v => v is not null );
 
-		double? GetSteelColumnValue()
+		double? GetNestedValue()
 		{
 			if( table.GetValue( LoadReductionFactorItemName ) is { } directLoadReductionFactor )
 				return directLoadReductionFactor;
