@@ -160,6 +160,39 @@ namespace CreatingAndAnalyzingModel
 				}
 			}
 
+			combinations = (await model.GetCombinationsAsync()).ToList();
+
+			foreach( var combination in combinations )
+			{
+				var loadcaseFactors = combination.LoadcaseFactors;
+
+				foreach( var lcf in loadcaseFactors )
+				{
+					var factors = lcf.Value;
+					var loadcaseId = factors.LoadcaseId.Value;
+
+					var loadcase = loadcases.FirstOrDefault( lc => lc.Id == loadcaseId );
+
+					if( loadcase == null )
+						continue;
+
+					var lcType = loadcase.Type.Value;
+
+					if( lcType == LoadcaseType.Dead )
+					{
+						lcf.Value.ServiceFactor.Value = 1.1;
+						lcf.Value.StrengthFactor.Value = 1.4;
+					}
+					else if( lcType == LoadcaseType.Imposed )
+					{
+						lcf.Value.ServiceFactor.Value = 1.2;
+						lcf.Value.StrengthFactor.Value = 1.6;
+					}
+				}
+
+				await combination.UpdateAsync();
+			}
+
 			// Create an envelope of all combinations
 			var envParams = new List<EntityParams>()
 			{
