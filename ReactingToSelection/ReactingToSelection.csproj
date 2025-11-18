@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="25.2.0" />
+    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="25.3.0" />
   </ItemGroup>
 
 </Project>

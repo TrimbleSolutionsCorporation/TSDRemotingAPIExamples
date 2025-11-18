@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="25.1.0" />
+    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="25.3.0" />
   </ItemGroup>
 
 </Project>

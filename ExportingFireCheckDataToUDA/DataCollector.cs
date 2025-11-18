@@ -93,7 +93,7 @@ internal static class DataCollector
 
 		var rootNode = await member.GetCalculationsAsync( CheckResultType.Static, cancellationToken: cancellationToken );
 
-		if( GetSummaryTable( rootNode ) is not { } summaryTable )
+		if( GetSummaryTable( rootNode ) is not { Status: not CheckStatus.Beyond } summaryTable )
 			return dataCollection;
 
 		if( summaryTable.GetLine( FireAmbientTemperatureLineName ) is not { } fireAmbientTemperatureLine )

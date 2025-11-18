@@ -178,7 +178,7 @@ namespace ExtractingResultsTableItem
 				return;
 			}
 
-			var units = await UnitConverter.GetUnitsAsync( quantity, SystemType.Metric );
+			var units = await UnitConverter.GetUnitsV2Async( quantity, SystemType.Metric );
 			var unit = units.First();
 
 			if( unit != null )
