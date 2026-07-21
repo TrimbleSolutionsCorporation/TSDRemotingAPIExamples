@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" Version="25.3.0" />
+    <PackageReference Include="TeklaStructuralDesigner.RemotingAPI" />
   </ItemGroup>
 
 </Project>
