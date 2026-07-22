@@ -41,7 +41,7 @@ namespace ExtractingModelData
 
 			var constructionPoints = (await model.GetConstructionPointsAsync()).ToList();
 
-			var membersToReport = members.Where( m => m.Data.Value.MaterialType.Value == materialType && IsOutputMemberType( m.Data.Value.MemberType.Value ) );
+			var membersToReport = members.Where( m => IsApplicable( m, materialType ) );
 
 			foreach( var member in membersToReport )
 			{
@@ -67,6 +67,16 @@ namespace ExtractingModelData
 			}
 
 			stringBuilder.AppendLine( string.Empty );
+		}
+
+		private static bool IsApplicable( IMember member, MaterialType materialType )
+		{
+			var data = member.Data.Value;
+
+			if( !data.MaterialType.IsApplicable || !data.MemberType.IsApplicable )
+				return false;
+
+			return data.MaterialType.Value == materialType && IsOutputMemberType( data.MemberType.Value );
 		}
 
 		public static bool IsOutputMemberType( MemberType memberType ) => memberType != MemberType.WallBeamElement
