@@ -638,7 +638,7 @@ namespace CreatingAndAnalyzingModel
 
 			// Create the new section
 			var sectionFactory = model.SectionFactory;
-			var newSection = await sectionFactory.GetParametricRectangularSectionAsync( MaterialType.Concrete, 500.0, 500.0 );
+			var newSection = await sectionFactory.GetParametricRectangularSectionAsync( TSD.API.Remoting.Sections.Materials.SectionMaterials.CastInPlaceConcrete, 500.0, 500.0 );
 
 			// Identify the column at grid intersection 4C
 			var startPoint = constructionPoints[3][2][0];
